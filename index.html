@@ -1012,7 +1012,280 @@
   <!-- FIREBASE & APPLICATION LOGIC                                          -->
   <!-- ===================================================================== -->
   <script type="module">
-// ... existing code ... -->
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+    import {
+      getAuth,
+      signInAnonymously,
+      signInWithCustomToken,
+      onAuthStateChanged,
+      EmailAuthProvider,
+      linkWithCredential,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      deleteDoc,
+      onSnapshot,
+      writeBatch
+    } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    /**
+     * TPSC ExamPrep Portal - Core Application State & Persistent Cloud Storage
+     */
+    const STARTER_QUESTIONS = [
+      {
+        id: 'tpsc-q-1',
+        category: 'Tripura GK',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Who among the following Manikya kings of Tripura constructed the iconic Neermahal water palace in the middle of Rudrasagar Lake?',
+        options: [
+          'Maharaja Bir Chandra Manikya',
+          'Maharaja Radha Kishore Manikya',
+          'Maharaja Bir Bikram Kishore Manikya',
+          'Maharaja Dhanya Manikya'
+        ],
+        correctIndex: 2,
+        explanation: 'Neermahal ("Water Palace") was built by Maharaja Bir Bikram Kishore Manikya Bahadur between 1930 and 1938 as a summer residence, blending Hindu and Mughal architectural styles.'
+      },
+      {
+        id: 'tpsc-q-2',
+        category: 'Tripura GK',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'On which date did the erstwhile princely state of Tripura officially merge with the Indian Union?',
+        options: [
+          '15 August 1947',
+          '9 September 1949',
+          '15 October 1949',
+          '21 January 1972'
+        ],
+        correctIndex: 2,
+        explanation: 'The Tripura Merger Agreement was signed by Maharani Kanchan Prava Devi on 9 September 1949, and Tripura officially merged with the Indian Union on 15 October 1949. Full statehood was attained later on 21 January 1972.'
+      },
+      {
+        id: 'tpsc-q-3',
+        category: 'Tripura GK',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which traditional dance of the Reang (Bru) community in Tripura is performed balancing on an earthen pitcher?',
+        options: [
+          'Garia Dance',
+          'Hojagiri Dance',
+          'Lebang Boomani Dance',
+          'Bizhu Dance'
+        ],
+        correctIndex: 1,
+        explanation: 'Hojagiri is the world-famous folk dance of the Reang (Bru) tribe of Tripura, where women perform acrobatic balancing feats on earthen pitchers (kalasi) and bottles.'
+      },
+      {
+        id: 'tpsc-q-4',
+        category: 'Tripura GK',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'What is the highest peak in the state of Tripura?',
+        options: [
+          'Betlingchhip (Betalongchhip)',
+          'Sakhantlang',
+          'Jampui Peak',
+          'Longtharai Peak'
+        ],
+        correctIndex: 0,
+        explanation: 'Betlingchhip (also known as Betalongchhip or Thaidawr), located in the Jampui Hills range in North Tripura district, is the highest peak in Tripura at an elevation of 939 metres (3,081 ft).'
+      },
+      {
+        id: 'tpsc-q-5',
+        category: 'Tripura GK',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Under which Schedule of the Constitution of India is the Tripura Tribal Areas Autonomous District Council (TTAADC) administered?',
+        options: [
+          'Fifth Schedule',
+          'Sixth Schedule',
+          'Seventh Schedule',
+          'Eighth Schedule'
+        ],
+        correctIndex: 1,
+        explanation: 'Originally constituted under the Seventh Schedule in 1982, TTAADC was brought under the Sixth Schedule of the Indian Constitution via the 49th Constitutional Amendment Act, effective from 1 April 1985.'
+      },
+      {
+        id: 'tpsc-q-6',
+        category: 'Current Affairs',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which famous agricultural produce of Tripura was awarded the Geographical Indication (GI) tag for its distinctive aroma and high sweetness?',
+        options: [
+          'Tripura Queen Pineapple',
+          'Tripura Kew Pineapple',
+          'Sabroom Mandarin Orange',
+          'Dhalai Black Pepper'
+        ],
+        correctIndex: 0,
+        explanation: 'Tripura Queen Pineapple was granted the GI tag and declared the State Fruit of Tripura by the President of India in 2018.'
+      },
+      {
+        id: 'tpsc-q-7',
+        category: 'Current Affairs',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'The "Maitri Setu" (Friendship Bridge) connecting Sabroom in South Tripura to Ramgarh in Bangladesh is built over which river?',
+        options: [
+          'Gomati River',
+          'Manu River',
+          'Feni River',
+          'Haora River'
+        ],
+        correctIndex: 2,
+        explanation: 'The 1.9 km long Maitri Setu is constructed over the Feni River, providing Tripura direct road connectivity to Chattogram (Chittagong) port in Bangladesh.'
+      },
+      {
+        id: 'tpsc-q-8',
+        category: 'Current Affairs',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which flagship scheme launched by the Government of Tripura aims to deliver doorstep governance and welfare benefits to every Gram Panchayat and Urban Ward?',
+        options: [
+          'Amar Sarkar',
+          'Mukhyamantri Cha Srami Kalyan Prakalpa',
+          'Nutan Disha',
+          'Mission 100 Vidyajyoti'
+        ],
+        correctIndex: 0,
+        explanation: 'The "Amar Sarkar" web portal and doorstep governance initiative was launched to bridge the gap between citizens and government departments at the panchayat and municipal ward levels.'
+      },
+      {
+        id: 'tpsc-q-9',
+        category: 'Indian Polity & Constitution',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which Article of the Constitution of India provides for the establishment and constitution of Public Service Commissions for the Union and for the States?',
+        options: [
+          'Article 312',
+          'Article 315',
+          'Article 320',
+          'Article 324'
+        ],
+        correctIndex: 1,
+        explanation: 'Article 315 of Part XIV of the Indian Constitution mandates a Public Service Commission for the Union (UPSC) and a Public Service Commission for each State (such as TPSC).'
+      },
+      {
+        id: 'tpsc-q-10',
+        category: 'Indian Polity & Constitution',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which Constitutional Amendment Act lowered the voting age in India from 21 years to 18 years?',
+        options: [
+          '42nd Amendment Act',
+          '44th Amendment Act',
+          '61st Amendment Act',
+          '73rd Amendment Act'
+        ],
+        correctIndex: 2,
+        explanation: 'The 61st Constitutional Amendment Act of 1988 (effective March 1989) amended Article 326 to reduce the minimum voting age for Lok Sabha and State Assembly elections from 21 to 18 years.'
+      },
+      {
+        id: 'tpsc-q-11',
+        category: 'Indian History & Freedom Struggle',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Who among the following led the famous "Kuki Rebellion" (1917–1919) against British colonial forced labor policies in the Northeast hills bordering Tripura and Manipur?',
+        options: [
+          'Rani Gaidinliu',
+          'Tintong Haokip and Chengjapao Doungel',
+          'U Tirot Sing',
+          'Bir Tikendrajit Singh'
+        ],
+        correctIndex: 1,
+        explanation: 'Chiefs Chengjapao Doungel and Tintong Haokip spearheaded the Kuki Rising of 1917–1919 resisting British recruitment into the Labour Corps during World War I.'
+      },
+      {
+        id: 'tpsc-q-12',
+        category: 'Indian History & Freedom Struggle',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which session of the Indian National Congress adopted the historic "Purna Swaraj" (Complete Independence) resolution in December 1929?',
+        options: [
+          'Calcutta Session',
+          'Lahore Session',
+          'Karachi Session',
+          'Tripuri Session'
+        ],
+        correctIndex: 1,
+        explanation: 'Presided over by Jawaharlal Nehru, the Lahore Session of December 1929 declared Purna Swaraj as the goal of the Congress and fixed 26 January 1930 as Independence Day.'
+      },
+      {
+        id: 'tpsc-q-13',
+        category: 'Geography & Environment',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which National Park in Tripura is renowned globally as a major habitat and conservation center for the Clouded Leopard?',
+        options: [
+          'Clouded Leopard National Park (Sepahijala)',
+          'Bison (Rajbari) National Park',
+          'Trishna Wildlife Sanctuary',
+          'Gumti Wildlife Sanctuary'
+        ],
+        correctIndex: 0,
+        explanation: 'Clouded Leopard National Park, located inside Sepahijala Wildlife Sanctuary in Sipahijala district, is dedicated to the conservation and breeding of the Clouded Leopard.'
+      },
+      {
+        id: 'tpsc-q-14',
+        category: 'Geography & Environment',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which latitude line passes directly through Udaipur in Gomati district of Tripura?',
+        options: [
+          'Equator (0°)',
+          'Tropic of Cancer (23°30′ N)',
+          'Tropic of Capricorn (23°30′ S)',
+          'Arctic Circle (66°30′ N)'
+        ],
+        correctIndex: 1,
+        explanation: 'The Tropic of Cancer (23°30′ N) passes through Udaipur in Tripura, making Tripura one of the 8 Indian states traversed by this latitude.'
+      },
+      {
+        id: 'tpsc-q-15',
+        category: 'General Science & Economy',
+        batchName: 'TPSC Starter Pack (15 Qs)',
+        question: 'Which mineral resource found abundantly in Tripura serves as the primary fuel for state thermal power projects like OTPC Palatana?',
+        options: [
+          'Bituminous Coal',
+          'Natural Gas',
+          'Crude Petroleum',
+          'Lignite'
+        ],
+        correctIndex: 1,
+        explanation: 'Tripura possesses rich reserves of high-grade non-associated Natural Gas, fueling major gas-based power projects including the 726.6 MW ONGC Tripura Power Company (OTPC) plant at Palatana.'
+      }
+    ];
+
+    const LOCAL_BACKUP_QUESTIONS_KEY = 'tpsc_exam_portal_questions_backup_v1';
+    const LOCAL_BACKUP_HISTORY_KEY = 'tpsc_exam_portal_history_backup_v1';
+    const LOCAL_SEEDED_FLAG = 'tpsc_exam_portal_seeded_v1';
+
+    // Firebase Instances & Runtime State
+    let app = null;
+    let auth = null;
+    let db = null;
+    let appId = 'tpsc-examprep-portal';
+    let currentUser = null;
+    let unsubscribeQuestions = null;
+    let unsubscribeHistory = null;
+    let isCloudReady = false;
+
+    let questionBank = [];
+    let testHistory = [];
+    let parsedBulkPreview = [];
+
+    // Active Test / Practice Session State
+    let session = {
+      active: false,
+      mode: 'practice',
+      category: 'ALL',
+      batchName: 'ALL',
+      negativeMarking: true,
+      questions: [],
+      currentIndex: 0,
+      answers: {},
+      reviewStatus: {},
+      visited: {},
+      startTime: null,
+      timerSeconds: 0,
+      timerInterval: null,
+      scorecardFilter: 'ALL'
+    };
+
     /**
      * Update Top Navbar Cloud Sync Status UI (Desktop & Mobile)
      */
@@ -1048,7 +1321,137 @@
     /**
      * Initialize Firebase Auth & Real-Time Firestore Listeners
      */
-// ... existing code ... -->
+    async function initCloudStorage() {
+      loadLocalCacheFirst();
+      onBankOrHistoryUpdated();
+
+      try {
+        const rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        appId = typeof __app_id !== 'undefined' ? __app_id : 'tpsc-examprep-portal';
+
+        if (!rawConfig) {
+          updateCloudSyncUI('local', `Local Saved • ${questionBank.length} Questions`);
+          return;
+        }
+
+        const firebaseConfig = typeof rawConfig === 'string' ? JSON.parse(rawConfig) : rawConfig;
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+          currentUser = user;
+          updateAccountModalUI();
+          if (user) {
+            isCloudReady = true;
+            attachFirestoreListeners(user.uid);
+          } else {
+            isCloudReady = false;
+            detachFirestoreListeners();
+          }
+        });
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (err) {
+        console.error('Firebase initialization error:', err);
+        updateCloudSyncUI('local', `Local Saved • ${questionBank.length} Questions`);
+      }
+    }
+
+    function loadLocalCacheFirst() {
+      try {
+        const qRaw = localStorage.getItem(LOCAL_BACKUP_QUESTIONS_KEY);
+        const hRaw = localStorage.getItem(LOCAL_BACKUP_HISTORY_KEY);
+        if (qRaw) {
+          questionBank = JSON.parse(qRaw);
+        } else if (!localStorage.getItem(LOCAL_SEEDED_FLAG)) {
+          questionBank = [...STARTER_QUESTIONS];
+          localStorage.setItem(LOCAL_BACKUP_QUESTIONS_KEY, JSON.stringify(questionBank));
+          localStorage.setItem(LOCAL_SEEDED_FLAG, 'true');
+        }
+        if (hRaw) {
+          testHistory = JSON.parse(hRaw);
+        }
+      } catch (e) {
+        questionBank = [...STARTER_QUESTIONS];
+        testHistory = [];
+      }
+    }
+
+    function saveLocalBackup() {
+      try {
+        localStorage.setItem(LOCAL_BACKUP_QUESTIONS_KEY, JSON.stringify(questionBank));
+        localStorage.setItem(LOCAL_BACKUP_HISTORY_KEY, JSON.stringify(testHistory));
+      } catch (e) {
+        console.warn('Local cache save warning:', e);
+      }
+    }
+
+    function detachFirestoreListeners() {
+      if (unsubscribeQuestions) {
+        unsubscribeQuestions();
+        unsubscribeQuestions = null;
+      }
+      if (unsubscribeHistory) {
+        unsubscribeHistory();
+        unsubscribeHistory = null;
+      }
+    }
+
+    function attachFirestoreListeners(uid) {
+      detachFirestoreListeners();
+      updateCloudSyncUI('syncing', 'Syncing Cloud Bank...');
+
+      const questionsCol = collection(db, 'artifacts', appId, 'users', uid, 'questions');
+      const historyCol = collection(db, 'artifacts', appId, 'users', uid, 'history');
+
+      let initialLoadDone = false;
+
+      unsubscribeQuestions = onSnapshot(questionsCol, async (snapshot) => {
+        const cloudList = [];
+        snapshot.forEach((docSnap) => {
+          cloudList.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // Sort newest first by createdAt
+        cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        // First-time cloud setup: migrate local questions or seed starter pack
+        if (!initialLoadDone && cloudList.length === 0) {
+          initialLoadDone = true;
+          const toSeed = questionBank.length > 0 ? questionBank : STARTER_QUESTIONS;
+          await batchWriteQuestionsToCloud(uid, toSeed);
+          return;
+        }
+        initialLoadDone = true;
+
+        questionBank = cloudList;
+        saveLocalBackup();
+        updateCloudSyncUI('synced');
+        onBankOrHistoryUpdated();
+      }, (error) => {
+        console.error('Questions snapshot error:', error);
+        updateCloudSyncUI('local', `Local Cache • ${questionBank.length} Qs`);
+      });
+
+      unsubscribeHistory = onSnapshot(historyCol, (snapshot) => {
+        const histList = [];
+        snapshot.forEach((docSnap) => {
+          histList.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        histList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        testHistory = histList;
+        saveLocalBackup();
+        refreshDashboard();
+      }, (error) => {
+        console.error('History snapshot error:', error);
+      });
+    }
+
     function onBankOrHistoryUpdated() {
       updateAdminCounts();
       populateBatchDropdowns();
@@ -1059,9 +1462,55 @@
     }
 
     /**
-     * Seed or Import the 15 Authentic TPSC Starter Questions into Cloud Firestore
+     * Write Multiple Questions Safely in Batches to Cloud Firestore
      */
-// ... existing code ... -->
+    async function batchWriteQuestionsToCloud(uid, items) {
+      if (!db || !uid || !items.length) return;
+      updateCloudSyncUI('syncing', `Saving ${items.length} Questions...`);
+      const chunkSize = 400;
+      for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize);
+        const batch = writeBatch(db);
+        chunk.forEach((q, idx) => {
+          const docId = q.id || `q-${Date.now()}-${i + idx}-${Math.random().toString(36).slice(2, 6)}`;
+          const docRef = doc(db, 'artifacts', appId, 'users', uid, 'questions', docId);
+          batch.set(docRef, {
+            category: q.category || 'Tripura GK',
+            batchName: q.batchName || 'General Bank',
+            question: q.question,
+            options: q.options,
+            correctIndex: Number(q.correctIndex),
+            explanation: q.explanation || '',
+            createdAt: q.createdAt || (Date.now() + idx)
+          });
+        });
+        await batch.commit();
+      }
+      updateCloudSyncUI('synced');
+    }
+
+    async function seedStarterPackToCloud(notify = false) {
+      const stamped = STARTER_QUESTIONS.map((q, idx) => ({
+        ...q,
+        id: `starter-${q.id}`,
+        createdAt: Date.now() - (STARTER_QUESTIONS.length - idx) * 100
+      }));
+
+      if (isCloudReady && currentUser) {
+        await batchWriteQuestionsToCloud(currentUser.uid, stamped);
+      } else {
+        const existingIds = new Set(questionBank.map(x => x.id));
+        stamped.forEach(item => {
+          if (!existingIds.has(item.id)) questionBank.unshift(item);
+        });
+        saveLocalBackup();
+        onBankOrHistoryUpdated();
+      }
+      if (notify) {
+        showToast('15 TPSC Starter Questions synced to your bank.', 'success');
+      }
+    }
+
     /**
      * Account Modal & Multi-Device Email Sign-In / Account Linking
      */
@@ -1103,7 +1552,78 @@
     }
 
     function openAccountModal() {
-// ... existing code ... -->
+      updateAccountModalUI();
+      const modal = document.getElementById('account-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAccountModal() {
+      const modal = document.getElementById('account-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function handleEmailLinkOrRegister() {
+      if (!auth) {
+        showToast('Cloud authentication is unavailable in offline mode.', 'warning');
+        return;
+      }
+      const email = document.getElementById('auth-email-input').value.trim();
+      const pass = document.getElementById('auth-pass-input').value;
+      if (!email || pass.length < 6) {
+        showToast('Enter a valid email and a password of at least 6 characters.', 'error');
+        return;
+      }
+      try {
+        if (currentUser && currentUser.isAnonymous) {
+          const cred = EmailAuthProvider.credential(email, pass);
+          await linkWithCredential(currentUser, cred);
+          showToast('Your current question bank is now linked to your email!', 'success');
+        } else {
+          await createUserWithEmailAndPassword(auth, email, pass);
+          showToast('Account created and synced!', 'success');
+        }
+        updateAccountModalUI();
+        closeAccountModal();
+      } catch (err) {
+        showToast(err.message || 'Could not link account. Try signing in if email exists.', 'error');
+      }
+    }
+
+    async function handleEmailSignIn() {
+      if (!auth) {
+        showToast('Cloud authentication is unavailable in offline mode.', 'warning');
+        return;
+      }
+      const email = document.getElementById('auth-email-input').value.trim();
+      const pass = document.getElementById('auth-pass-input').value;
+      if (!email || !pass) {
+        showToast('Enter both email and password.', 'error');
+        return;
+      }
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showToast('Signed in! Loading your saved question bank...', 'success');
+        updateAccountModalUI();
+        closeAccountModal();
+      } catch (err) {
+        showToast(err.message || 'Sign-in failed. Please verify your credentials.', 'error');
+      }
+    }
+
+    async function handleSignOutToGuest() {
+      if (!auth) return;
+      try {
+        await signOut(auth);
+        await signInAnonymously(auth);
+        showToast('Signed out to a fresh guest session.', 'info');
+        closeAccountModal();
+      } catch (err) {
+        showToast('Error signing out.', 'error');
+      }
+    }
+
     /**
      * Primary View Tab Navigation (Updates both Desktop Top Nav & Mobile Bottom Nav)
      */
@@ -1132,7 +1652,6 @@
         }
       });
 
-      // Toggle between Mobile Bottom Nav and Mobile Exam Action Bar
       syncMobileBottomBars();
 
       if (tabName === 'dashboard') {
@@ -1179,7 +1698,217 @@
      * DASHBOARD & TEST LOBBY FUNCTIONS
      * ===================================================================
      */
-// ... existing code ... -->
+    function populateBatchDropdowns() {
+      const batches = new Map();
+      questionBank.forEach(q => {
+        const name = (q.batchName || 'General Bank').trim();
+        batches.set(name, (batches.get(name) || 0) + 1);
+      });
+
+      const lobbyBatch = document.getElementById('lobby-batch-select');
+      const bankBatch = document.getElementById('bank-filter-batch');
+
+      [lobbyBatch, bankBatch].forEach(sel => {
+        if (!sel) return;
+        const prev = sel.value;
+        sel.innerHTML = `<option value="ALL">All Saved Sets (${questionBank.length})</option>`;
+        batches.forEach((count, name) => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = `${name} (${count})`;
+          sel.appendChild(opt);
+        });
+        if ([...sel.options].some(o => o.value === prev)) {
+          sel.value = prev;
+        }
+      });
+    }
+
+    function updateLobbyAvailableCount() {
+      const cat = document.getElementById('lobby-category-select').value;
+      const batch = document.getElementById('lobby-batch-select').value;
+      const filtered = questionBank.filter(q => {
+        const matchCat = cat === 'ALL' || q.category === cat;
+        const matchBatch = batch === 'ALL' || (q.batchName || 'General Bank') === batch;
+        return matchCat && matchBatch;
+      });
+      document.getElementById('lobby-available-badge').textContent = `${filtered.length} MCQs Ready`;
+    }
+
+    function refreshDashboard() {
+      updateLobbyAvailableCount();
+      document.getElementById('stat-total-questions').textContent = questionBank.length;
+      document.getElementById('stat-mocks-taken').textContent = testHistory.length;
+
+      if (testHistory.length > 0) {
+        const avgAcc = Math.round(
+          testHistory.reduce((sum, item) => sum + item.accuracy, 0) / testHistory.length
+        );
+        document.getElementById('stat-avg-accuracy').textContent = `${avgAcc}%`;
+
+        const best = testHistory.reduce((max, item) =>
+          item.percentage > max.percentage ? item : max
+        , testHistory[0]);
+        document.getElementById('stat-best-score').textContent = `${best.netScore.toFixed(2)} / ${best.maxScore}`;
+        document.getElementById('clear-history-btn').classList.remove('hidden');
+      } else {
+        document.getElementById('stat-avg-accuracy').textContent = '0%';
+        document.getElementById('stat-best-score').textContent = '--';
+        document.getElementById('clear-history-btn').classList.add('hidden');
+      }
+
+      // Render Category Breakdown Cards
+      const categories = [
+        { name: 'Tripura GK', icon: 'fa-landmark', color: 'emerald' },
+        { name: 'Current Affairs', icon: 'fa-newspaper', color: 'blue' },
+        { name: 'Indian Polity & Constitution', icon: 'fa-scale-balanced', color: 'indigo' },
+        { name: 'Indian History & Freedom Struggle', icon: 'fa-monument', color: 'amber' },
+        { name: 'Geography & Environment', icon: 'fa-earth-asia', color: 'teal' },
+        { name: 'General Science & Economy', icon: 'fa-flask', color: 'purple' }
+      ];
+
+      const catGrid = document.getElementById('category-breakdown-grid');
+      catGrid.innerHTML = '';
+      categories.forEach(cat => {
+        const count = questionBank.filter(q => q.category === cat.name).length;
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-xl border border-slate-200/90 hover:border-emerald-400 active:bg-emerald-50/40 bg-slate-50/60 hover:bg-emerald-50/30 transition cursor-pointer flex items-center justify-between gap-3 group';
+        card.onclick = () => {
+          document.getElementById('lobby-category-select').value = cat.name;
+          document.getElementById('lobby-batch-select').value = 'ALL';
+          startSession('practice');
+        };
+        card.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 group-hover:text-emerald-600 group-hover:border-emerald-200 flex items-center justify-center shrink-0 transition">
+              <i class="fa-solid ${cat.icon} text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-slate-800 truncate">${escapeHTML(cat.name)}</p>
+              <p class="text-[11px] text-slate-500">${count} Question${count === 1 ? '' : 's'}</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 opacity-80 group-hover:opacity-100 shrink-0">
+            Practice <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </span>
+        `;
+        catGrid.appendChild(card);
+      });
+
+      // Render Recent History
+      const historyList = document.getElementById('recent-history-list');
+      historyList.innerHTML = '';
+      if (testHistory.length === 0) {
+        historyList.innerHTML = `
+          <div class="text-center py-8 px-4 border border-dashed border-slate-200 rounded-xl">
+            <i class="fa-solid fa-chart-line text-2xl text-slate-300 mb-2"></i>
+            <p class="text-xs font-semibold text-slate-600">No mock tests attempted yet</p>
+            <p class="text-[11px] text-slate-400 mt-1">Take a timed Mock Test from the lobby to track your TPSC score progression.</p>
+          </div>
+        `;
+      } else {
+        testHistory.slice(0, 8).forEach(h => {
+          const item = document.createElement('div');
+          item.className = 'p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-3';
+          const scoreBadgeColor = h.percentage >= 60 ? 'bg-emerald-100 text-emerald-800' : (h.percentage >= 40 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+          item.innerHTML = `
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900 truncate">${escapeHTML(h.title)}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">${escapeHTML(h.date)} • ${h.correct}C / ${h.wrong}W / ${h.unattempted}S</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-extrabold ${scoreBadgeColor}">
+                ${Number(h.netScore).toFixed(2)} / ${h.maxScore}
+              </span>
+              <p class="text-[10px] font-semibold text-slate-400 mt-0.5">${h.accuracy}% Acc.</p>
+            </div>
+          `;
+          historyList.appendChild(item);
+        });
+      }
+    }
+
+    function confirmClearHistory() {
+      showConfirmModal(
+        'Clear Mock Test History',
+        'Are you sure you want to delete all recorded mock test scores and accuracy statistics?',
+        async () => {
+          if (isCloudReady && currentUser) {
+            const batch = writeBatch(db);
+            testHistory.forEach(h => {
+              if (h.id) {
+                batch.delete(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'history', h.id));
+              }
+            });
+            await batch.commit();
+          }
+          testHistory = [];
+          saveLocalBackup();
+          refreshDashboard();
+          showToast('Mock test history cleared.', 'info');
+        }
+      );
+    }
+
+    /**
+     * ===================================================================
+     * TEST / PRACTICE ARENA ENGINE
+     * ===================================================================
+     */
+    function quickLaunchDefault(mode) {
+      document.getElementById('lobby-category-select').value = 'ALL';
+      document.getElementById('lobby-batch-select').value = 'ALL';
+      document.getElementById('lobby-count-select').value = '15';
+      startSession(mode);
+    }
+
+    function startSession(mode) {
+      const category = document.getElementById('lobby-category-select').value;
+      const batchName = document.getElementById('lobby-batch-select').value;
+      const countVal = document.getElementById('lobby-count-select').value;
+      const negativeMarking = document.getElementById('lobby-negative-toggle').checked;
+
+      let pool = questionBank.filter(q => {
+        const matchCat = category === 'ALL' || q.category === category;
+        const matchBatch = batchName === 'ALL' || (q.batchName || 'General Bank') === batchName;
+        return matchCat && matchBatch;
+      });
+
+      if (pool.length === 0) {
+        showToast('No questions found for the selected filter. Try selecting "All Categories" or add questions first.', 'error');
+        return;
+      }
+
+      pool = [...pool].sort(() => Math.random() - 0.5);
+
+      if (countVal !== 'ALL') {
+        const limit = parseInt(countVal, 10);
+        pool = pool.slice(0, Math.min(limit, pool.length));
+      }
+
+      if (session.timerInterval) {
+        clearInterval(session.timerInterval);
+      }
+
+      session = {
+        active: true,
+        mode,
+        category,
+        batchName,
+        negativeMarking,
+        questions: pool,
+        currentIndex: 0,
+        answers: {},
+        reviewStatus: {},
+        visited: { 0: true },
+        startTime: Date.now(),
+        timerSeconds: pool.length * 60,
+        timerInterval: null,
+        scorecardFilter: 'ALL'
+      };
+
       switchTab('arena');
       document.getElementById('arena-empty-state').classList.add('hidden');
       document.getElementById('arena-scorecard-container').classList.add('hidden');
@@ -1187,7 +1916,73 @@
       syncMobileBottomBars();
 
       const badge = document.getElementById('arena-mode-badge');
-// ... existing code ... -->
+      const title = document.getElementById('arena-session-title');
+      const markingInfo = document.getElementById('arena-marking-info');
+      const timerBox = document.getElementById('arena-timer-box');
+      const submitLabel = document.getElementById('arena-submit-label');
+
+      const labelContext = batchName !== 'ALL' ? batchName : (category === 'ALL' ? 'Mixed TPSC Syllabus' : category);
+
+      if (mode === 'mock') {
+        badge.textContent = 'MOCK TEST';
+        badge.className = 'px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 shrink-0';
+        title.textContent = `TPSC Mock Test • ${labelContext}`;
+        markingInfo.innerHTML = negativeMarking
+          ? 'Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-rose-600 font-semibold">-0.25</span> Wrong'
+          : 'Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-slate-600 font-semibold">0.00</span> Negative Off';
+        timerBox.classList.remove('hidden');
+        submitLabel.textContent = 'Submit Test';
+        startMockTimer();
+      } else {
+        badge.textContent = 'PRACTICE';
+        badge.className = 'px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-extrabold uppercase tracking-wider bg-blue-100 text-blue-800 shrink-0';
+        title.textContent = `Instant Practice • ${labelContext}`;
+        markingInfo.innerHTML = 'Instant feedback & detailed explanations enabled after selecting an option';
+        timerBox.classList.add('hidden');
+        submitLabel.textContent = 'Finish & View Summary';
+      }
+
+      renderActiveQuestion();
+      renderQuestionPalette();
+    }
+
+    function retakeSameSession() {
+      if (!session.questions || session.questions.length === 0) {
+        switchTab('dashboard');
+        return;
+      }
+      startSession(session.mode);
+    }
+
+    function startMockTimer() {
+      updateTimerDisplay();
+      session.timerInterval = setInterval(() => {
+        session.timerSeconds--;
+        updateTimerDisplay();
+        if (session.timerSeconds <= 0) {
+          clearInterval(session.timerInterval);
+          showToast('Time is up! Automatically submitting your TPSC Mock Test...', 'warning');
+          finalizeAndShowScorecard();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(Math.max(0, session.timerSeconds) / 60);
+      const secs = Math.max(0, session.timerSeconds) % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const display = document.getElementById('arena-timer-display');
+      const box = document.getElementById('arena-timer-box');
+      display.textContent = formatted;
+      if (session.timerSeconds <= 60) {
+        box.classList.remove('bg-slate-900');
+        box.classList.add('bg-rose-600', 'animate-pulse');
+      } else {
+        box.classList.add('bg-slate-900');
+        box.classList.remove('bg-rose-600', 'animate-pulse');
+      }
+    }
+
     function renderActiveQuestion() {
       const idx = session.currentIndex;
       const q = session.questions[idx];
@@ -1198,7 +1993,54 @@
       if (mobCounter) mobCounter.textContent = `Q ${idx + 1} / ${session.questions.length}`;
       document.getElementById('q-category-tag').textContent = q.category;
       document.getElementById('q-text').textContent = q.question;
-// ... existing code ... -->
+
+      const selectedOpt = session.answers[idx];
+      const isReviewed = !!session.reviewStatus[idx];
+      const statusPill = document.getElementById('q-status-pill');
+
+      if (isReviewed && selectedOpt !== undefined) {
+        statusPill.textContent = 'Answered & Marked for Review';
+        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 font-semibold';
+      } else if (isReviewed) {
+        statusPill.textContent = 'Marked for Review';
+        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold';
+      } else if (selectedOpt !== undefined) {
+        statusPill.textContent = 'Answered';
+        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold';
+      } else {
+        statusPill.textContent = 'Not Answered';
+        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold';
+      }
+
+      const optionsContainer = document.getElementById('q-options-container');
+      optionsContainer.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        let cardStyle = 'border-slate-200 bg-white hover:border-emerald-400 hover:bg-slate-50 text-slate-800';
+        let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-300';
+        let rightIcon = '';
+
+        if (session.mode === 'practice' && selectedOpt !== undefined) {
+          if (optIdx === q.correctIndex) {
+            cardStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 ring-1 ring-emerald-500';
+            badgeStyle = 'bg-emerald-600 text-white border-emerald-600';
+            rightIcon = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg ml-auto shrink-0"></i>';
+          } else if (optIdx === selectedOpt && selectedOpt !== q.correctIndex) {
+            cardStyle = 'border-rose-500 bg-rose-50 text-rose-950 ring-1 ring-rose-500';
+            badgeStyle = 'bg-rose-600 text-white border-rose-600';
+            rightIcon = '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg ml-auto shrink-0"></i>';
+          } else {
+            cardStyle = 'border-slate-200 bg-slate-50/60 text-slate-500 opacity-75';
+          }
+        } else if (selectedOpt === optIdx) {
+          cardStyle = 'border-emerald-600 bg-emerald-50/70 text-slate-900 ring-1 ring-emerald-600';
+          badgeStyle = 'bg-emerald-600 text-white border-emerald-600';
+          rightIcon = '<i class="fa-solid fa-circle-dot text-emerald-600 text-base ml-auto shrink-0"></i>';
+        }
+
         btn.className = `option-card min-h-[54px] w-full text-left p-3.5 sm:p-4 rounded-xl border-2 flex items-center gap-3 sm:gap-3.5 ${cardStyle}`;
         btn.onclick = () => selectOption(optIdx);
         btn.innerHTML = `
@@ -1210,14 +2052,86 @@
         `;
         optionsContainer.appendChild(btn);
       });
-// ... existing code ... -->
+
+      const expBox = document.getElementById('practice-explanation-box');
+      if (session.mode === 'practice' && selectedOpt !== undefined) {
+        expBox.classList.remove('hidden');
+        const isCorrect = selectedOpt === q.correctIndex;
+        const header = document.getElementById('practice-feedback-header');
+        if (isCorrect) {
+          expBox.className = 'rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:p-5 space-y-2';
+          header.className = 'flex items-center gap-2 font-bold text-sm text-emerald-800';
+          header.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> <span>Correct Answer! (+1.00 Mark)</span>';
+        } else {
+          expBox.className = 'rounded-2xl border border-rose-200 bg-rose-50/80 p-4 sm:p-5 space-y-2';
+          header.className = 'flex items-center gap-2 font-bold text-sm text-rose-800';
+          header.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> <span>Incorrect! Correct Option is (${letters[q.correctIndex]})</span>`;
+        }
+        document.getElementById('practice-explanation-text').textContent = q.explanation || 'No additional explanation provided.';
+      } else {
+        expBox.classList.add('hidden');
+      }
+
       document.getElementById('btn-prev-q').disabled = idx === 0;
       const mobPrevBtn = document.getElementById('mob-btn-prev');
       if (mobPrevBtn) mobPrevBtn.disabled = idx === 0;
     }
 
     function selectOption(optIdx) {
-// ... existing code ... -->
+      const idx = session.currentIndex;
+      if (session.mode === 'practice' && session.answers[idx] !== undefined) {
+        return;
+      }
+      session.answers[idx] = optIdx;
+      renderActiveQuestion();
+      renderQuestionPalette();
+    }
+
+    function clearCurrentResponse() {
+      const idx = session.currentIndex;
+      delete session.answers[idx];
+      delete session.reviewStatus[idx];
+      renderActiveQuestion();
+      renderQuestionPalette();
+    }
+
+    function navigateQuestion(delta) {
+      const next = session.currentIndex + delta;
+      if (next >= 0 && next < session.questions.length) {
+        session.currentIndex = next;
+        renderActiveQuestion();
+        renderQuestionPalette();
+      }
+    }
+
+    function jumpToQuestion(index) {
+      if (index >= 0 && index < session.questions.length) {
+        session.currentIndex = index;
+        renderActiveQuestion();
+        renderQuestionPalette();
+      }
+    }
+
+    function saveAndNext() {
+      if (session.currentIndex < session.questions.length - 1) {
+        session.currentIndex++;
+        renderActiveQuestion();
+        renderQuestionPalette();
+      } else {
+        showToast('You are on the last question. Click "Submit" when ready.', 'info');
+      }
+    }
+
+    function markForReviewAndNext() {
+      const idx = session.currentIndex;
+      session.reviewStatus[idx] = !session.reviewStatus[idx];
+      if (session.currentIndex < session.questions.length - 1) {
+        session.currentIndex++;
+      }
+      renderActiveQuestion();
+      renderQuestionPalette();
+    }
+
     function renderQuestionPalette() {
       const grid = document.getElementById('question-palette-grid');
       const mobGrid = document.getElementById('mob-question-palette-grid');
@@ -1300,14 +2214,822 @@
     }
 
     function handleFinishSessionClick() {
-// ... existing code ... -->
+      const answeredCount = Object.keys(session.answers).length;
+      const total = session.questions.length;
+      const unattempted = total - answeredCount;
+      showConfirmModal(
+        session.mode === 'mock' ? 'Submit TPSC Mock Test?' : 'Finish Practice Session?',
+        `You have answered ${answeredCount} out of ${total} questions (${unattempted} unattempted). Proceed to view your scorecard and detailed solutions?`,
+        () => finalizeAndShowScorecard()
+      );
+    }
+
+    async function finalizeAndShowScorecard() {
+      if (session.timerInterval) {
+        clearInterval(session.timerInterval);
+        session.timerInterval = null;
+      }
+      session.active = false;
+
+      let correct = 0;
+      let wrong = 0;
+      let unattempted = 0;
+      const catStats = {};
+
+      session.questions.forEach((q, idx) => {
+        if (!catStats[q.category]) {
+          catStats[q.category] = { total: 0, correct: 0, wrong: 0, unattempted: 0 };
+        }
+        catStats[q.category].total++;
+
+        const ans = session.answers[idx];
+        if (ans === undefined) {
+          unattempted++;
+          catStats[q.category].unattempted++;
+        } else if (ans === q.correctIndex) {
+          correct++;
+          catStats[q.category].correct++;
+        } else {
+          wrong++;
+          catStats[q.category].wrong++;
+        }
+      });
+
+      const positiveMarks = correct * 1.0;
+      const negativeMarks = session.negativeMarking ? wrong * 0.25 : 0;
+      const netScore = Number((positiveMarks - negativeMarks).toFixed(2));
+      const maxScore = session.questions.length;
+      const attempted = correct + wrong;
+      const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+      const percentage = maxScore > 0 ? Math.max(0, Math.round((netScore / maxScore) * 100)) : 0;
+
+      const elapsedSec = Math.max(1, Math.round((Date.now() - session.startTime) / 1000));
+      const mins = Math.floor(elapsedSec / 60);
+      const secs = elapsedSec % 60;
+      const timeFormatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      if (session.mode === 'mock') {
+        const recordId = `hist-${Date.now()}`;
+        const labelContext = session.batchName !== 'ALL' ? session.batchName : (session.category === 'ALL' ? 'Mixed Mock' : session.category);
+        const record = {
+          id: recordId,
+          title: `TPSC ${labelContext} (${maxScore} Qs)`,
+          date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+          timestamp: Date.now(),
+          netScore,
+          maxScore,
+          correct,
+          wrong,
+          unattempted,
+          accuracy,
+          percentage
+        };
+
+        if (isCloudReady && currentUser) {
+          try {
+            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'history', recordId), record);
+          } catch (e) {
+            console.error('Failed to save score history to cloud:', e);
+          }
+        } else {
+          testHistory.unshift(record);
+          saveLocalBackup();
+        }
+      }
+
       document.getElementById('arena-active-container').classList.add('hidden');
       document.getElementById('arena-scorecard-container').classList.remove('hidden');
       toggleMobilePaletteDrawer(false);
       syncMobileBottomBars();
 
       document.getElementById('scorecard-title').textContent = session.mode === 'mock'
-// ... existing code ... -->
+        ? 'TPSC Prelims Mock Test Scorecard'
+        : 'Practice Session Performance Summary';
+      document.getElementById('scorecard-subtitle').textContent =
+        `${session.questions.length} Questions • ${session.negativeMarking ? 'Official Negative Marking (-0.25) Applied' : 'No Negative Marking'}`;
+
+      document.getElementById('sc-net-score').textContent = netScore.toFixed(2);
+      document.getElementById('sc-max-score').textContent = `out of ${maxScore.toFixed(2)}`;
+      document.getElementById('sc-accuracy').textContent = `${accuracy}%`;
+      document.getElementById('sc-correct').textContent = correct;
+      document.getElementById('sc-positive-marks').textContent = `+${positiveMarks.toFixed(2)} marks`;
+      document.getElementById('sc-wrong').textContent = wrong;
+      document.getElementById('sc-negative-marks').textContent = `-${negativeMarks.toFixed(2)} marks`;
+      document.getElementById('sc-unattempted').textContent = unattempted;
+      document.getElementById('sc-time-taken').textContent = timeFormatted;
+
+      const catContainer = document.getElementById('sc-category-breakdown');
+      catContainer.innerHTML = '';
+      Object.entries(catStats).forEach(([catName, st]) => {
+        const catAcc = (st.correct + st.wrong) > 0
+          ? Math.round((st.correct / (st.correct + st.wrong)) * 100)
+          : 0;
+        const div = document.createElement('div');
+        div.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2';
+        div.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-slate-800 truncate">${escapeHTML(catName)}</span>
+            <span class="text-xs font-extrabold text-emerald-700">${st.correct}/${st.total}</span>
+          </div>
+          <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+            <div class="bg-emerald-500 h-full rounded-full" style="width: ${catAcc}%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500">
+            <span>${st.correct} Correct • ${st.wrong} Wrong</span>
+            <span>${catAcc}% Acc.</span>
+          </div>
+        `;
+        catContainer.appendChild(div);
+      });
+
+      filterScorecardReview('ALL');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterScorecardReview(filterType) {
+      session.scorecardFilter = filterType;
+      document.querySelectorAll('.rev-filter-btn').forEach(btn => {
+        btn.className = 'rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      });
+      const activeBtn = document.getElementById(`rev-filter-${filterType}`);
+      if (activeBtn) {
+        activeBtn.className = 'rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-xs transition';
+      }
+
+      const list = document.getElementById('sc-solutions-list');
+      list.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      let shownCount = 0;
+
+      session.questions.forEach((q, idx) => {
+        const userAns = session.answers[idx];
+        let status = 'UNATTEMPTED';
+        if (userAns !== undefined) {
+          status = userAns === q.correctIndex ? 'CORRECT' : 'WRONG';
+        }
+
+        if (filterType !== 'ALL' && status !== filterType) return;
+        shownCount++;
+
+        let statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700">Unattempted (0.00)</span>';
+        let borderClass = 'border-slate-200';
+        if (status === 'CORRECT') {
+          statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Correct (+1.00)</span>';
+          borderClass = 'border-emerald-200 bg-emerald-50/15';
+        } else if (status === 'WRONG') {
+          const negText = session.negativeMarking ? '-0.25' : '0.00';
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">Wrong (${negText})</span>`;
+          borderClass = 'border-rose-200 bg-rose-50/15';
+        }
+
+        const optionsHtml = q.options.map((opt, oIdx) => {
+          let optClass = 'bg-white border-slate-200 text-slate-700';
+          let tag = '';
+          if (oIdx === q.correctIndex) {
+            optClass = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-semibold';
+            tag = '<span class="ml-auto text-[11px] font-bold text-emerald-700 shrink-0"><i class="fa-solid fa-check mr-1"></i>Correct</span>';
+          } else if (oIdx === userAns && userAns !== q.correctIndex) {
+            optClass = 'bg-rose-50 border-rose-500 text-rose-950 font-semibold';
+            tag = '<span class="ml-auto text-[11px] font-bold text-rose-700 shrink-0"><i class="fa-solid fa-xmark mr-1"></i>Your Answer</span>';
+          }
+          return `
+            <div class="px-3.5 py-2.5 rounded-xl border text-xs flex items-center gap-2.5 ${optClass}">
+              <span class="font-bold">${letters[oIdx]}.</span>
+              <span class="flex-1">${escapeHTML(opt)}</span>
+              ${tag}
+            </div>
+          `;
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = `p-4 sm:p-5 rounded-2xl border ${borderClass} space-y-3`;
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-slate-900">Q${idx + 1}.</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">${escapeHTML(q.category)}</span>
+            </div>
+            ${statusBadge}
+          </div>
+          <p class="text-sm font-bold text-slate-900 leading-relaxed">${escapeHTML(q.question)}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            ${optionsHtml}
+          </div>
+          <div class="bg-slate-100/90 rounded-xl p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-200/80">
+            <strong class="text-slate-900"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Explanation:</strong>
+            ${escapeHTML(q.explanation || 'No explanation provided.')}
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      if (shownCount === 0) {
+        list.innerHTML = `<p class="text-center text-sm text-slate-500 py-8">No questions match the selected "${filterType}" filter.</p>`;
+      }
+    }
+
+    /**
+     * ===================================================================
+     * QUESTION UPLOAD PORTAL & BANK MANAGEMENT
+     * ===================================================================
+     */
+    function switchAdminSubtab(subtab) {
+      const tabs = ['single', 'bulk', 'manage'];
+      tabs.forEach(t => {
+        const panel = document.getElementById(`admin-panel-${t}`);
+        const btn = document.getElementById(`subtab-btn-${t}`);
+        if (t === subtab) {
+          panel.classList.remove('hidden');
+          btn.className = 'admin-subtab min-h-[42px] px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold bg-emerald-600 text-white shadow-xs transition flex items-center justify-center gap-1.5';
+        } else {
+          panel.classList.add('hidden');
+          btn.className = 'admin-subtab min-h-[42px] px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center justify-center gap-1.5';
+        }
+      });
+      if (subtab === 'manage') {
+        renderQuestionBankList();
+      }
+    }
+
+    function updateAdminCounts() {
+      const el = document.getElementById('admin-tab-count');
+      if (el) el.textContent = questionBank.length;
+    }
+
+    async function handleSingleQuestionSubmit(e) {
+      e.preventDefault();
+      const category = document.getElementById('inp-category').value;
+      const batchName = document.getElementById('inp-batch-name').value.trim() || 'Manual Entries';
+      const correctIndex = parseInt(document.getElementById('inp-correct').value, 10);
+      const question = document.getElementById('inp-question').value.trim();
+      const optA = document.getElementById('inp-opt-a').value.trim();
+      const optB = document.getElementById('inp-opt-b').value.trim();
+      const optC = document.getElementById('inp-opt-c').value.trim();
+      const optD = document.getElementById('inp-opt-d').value.trim();
+      const explanation = document.getElementById('inp-explanation').value.trim();
+
+      if (!question || !optA || !optB || !optC || !optD) {
+        showToast('Please fill out the question and all 4 options.', 'error');
+        return;
+      }
+
+      const newQ = {
+        id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        category,
+        batchName,
+        question,
+        options: [optA, optB, optC, optD],
+        correctIndex,
+        explanation,
+        createdAt: Date.now()
+      };
+
+      if (isCloudReady && currentUser) {
+        await batchWriteQuestionsToCloud(currentUser.uid, [newQ]);
+      } else {
+        questionBank.unshift(newQ);
+        saveLocalBackup();
+        onBankOrHistoryUpdated();
+      }
+
+      e.target.reset();
+      showToast('MCQ saved permanently to your Question Bank!', 'success');
+    }
+
+    // Drag & Drop support on CSV drop zone
+    const dropZone = document.getElementById('csv-drop-zone');
+    if (dropZone) {
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-emerald-500', 'bg-emerald-50/70');
+      });
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-emerald-500', 'bg-emerald-50/70');
+      });
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-emerald-500', 'bg-emerald-50/70');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          processUploadedFile(file);
+        }
+      });
+    }
+
+    function handleBulkFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      processUploadedFile(file);
+      event.target.value = '';
+    }
+
+    function processUploadedFile(file) {
+      const batchInput = document.getElementById('bulk-batch-name');
+      if (batchInput && !batchInput.value.trim()) {
+        const cleanName = file.name.replace(/\.(csv|json|txt)$/i, '').replace(/[_-]+/g, ' ');
+        batchInput.value = cleanName;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('bulk-raw-input').value = e.target.result;
+        parseAndPreviewBulk();
+      };
+      reader.readAsText(file);
+    }
+
+    function loadSampleTemplate(type) {
+      const batchInput = document.getElementById('bulk-batch-name');
+      if (type === 'json') {
+        if (batchInput && !batchInput.value.trim()) batchInput.value = 'Tripura Geography JSON Batch';
+        const sampleJson = [
+          {
+            category: 'Tripura GK',
+            question: 'Which river is the longest river flowing through the state of Tripura?',
+            options: ['Gomati River', 'Manu River', 'Khowai River', 'Dhalai River'],
+            correctIndex: 0,
+            explanation: 'The Gomati River (formed by the confluence of Raima and Sarma rivers) is the longest and largest river in Tripura.'
+          },
+          {
+            category: 'Current Affairs',
+            question: 'Unakoti, the famous Shaivite rock-cut heritage site in Tripura, is located in which district?',
+            options: ['Unakoti District', 'North Tripura District', 'Dhalai District', 'Gomati District'],
+            correctIndex: 0,
+            explanation: 'Unakoti ("one less than a crore") rock carvings are located near Kailashahar in Unakoti district of Tripura.'
+          }
+        ];
+        document.getElementById('bulk-raw-input').value = JSON.stringify(sampleJson, null, 2);
+      } else {
+        if (batchInput && !batchInput.value.trim()) batchInput.value = 'Tripura GK CSV Set 1';
+        const sampleCsv = [
+          'category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation',
+          '"Tripura GK","Who wrote the famous Rajmala chronicle of the Manikya dynasty?","Durlabhendra Chantai & Sukreswar","Rabindranath Tagore","Kazi Nazrul Islam","Sachin Dev Burman","A","Rajmala was compiled in Bengali verse under Maharaja Dharma Manikya by royal priest Durlabhendra Chantai and Brahmin scholars Sukreswar and Baneswar."',
+          '"Current Affairs","Tripura shares its longest international border with which neighboring country?","Myanmar","Bangladesh","Bhutan","Nepal","B","Tripura shares an 856 km international border with Bangladesh on its north, west, and south sides."'
+        ].join('\n');
+        document.getElementById('bulk-raw-input').value = sampleCsv;
+      }
+      parseAndPreviewBulk();
+    }
+
+    function downloadTemplateFile(type) {
+      let content = '';
+      let filename = '';
+      let mime = '';
+      if (type === 'csv') {
+        content = 'category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation\n' +
+          '"Tripura GK","What is the state animal of Tripura?","Phayre\'s Leaf Monkey","Clouded Leopard","One-horned Rhino","Sangai Deer","A","Phayre\'s leaf monkey (Spectacled langur) is the official state animal of Tripura."\n';
+        filename = 'TPSC_MCQ_Upload_Template.csv';
+        mime = 'text/csv;charset=utf-8;';
+      } else {
+        content = JSON.stringify(STARTER_QUESTIONS.slice(0, 2), null, 2);
+        filename = 'TPSC_MCQ_Upload_Template.json';
+        mime = 'application/json';
+      }
+      triggerDownload(content, filename, mime);
+    }
+
+    function clearBulkArea() {
+      document.getElementById('bulk-raw-input').value = '';
+      document.getElementById('bulk-batch-name').value = '';
+      document.getElementById('bulk-preview-card').classList.add('hidden');
+      parsedBulkPreview = [];
+    }
+
+    function parseAndPreviewBulk() {
+      const raw = document.getElementById('bulk-raw-input').value.trim();
+      const defaultCategory = document.getElementById('bulk-default-category').value;
+      const batchName = document.getElementById('bulk-batch-name').value.trim() || `Upload ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`;
+
+      if (!raw) {
+        showToast('Please select a CSV/JSON file or paste content first.', 'warning');
+        return;
+      }
+
+      let extracted = [];
+      try {
+        if (raw.startsWith('[') || raw.startsWith('{')) {
+          const parsed = JSON.parse(raw);
+          const arr = Array.isArray(parsed) ? parsed : [parsed];
+          arr.forEach((item, i) => {
+            if (item.question && Array.isArray(item.options) && item.options.length === 4) {
+              let cIdx = 0;
+              if (typeof item.correctIndex === 'number') {
+                cIdx = item.correctIndex;
+              } else if (typeof item.correctAnswer === 'string') {
+                cIdx = mapAnswerLetterToIndex(item.correctAnswer);
+              }
+              extracted.push({
+                id: `bulk-${Date.now()}-${i}`,
+                category: item.category || defaultCategory,
+                batchName,
+                question: String(item.question).trim(),
+                options: item.options.map(o => String(o).trim()),
+                correctIndex: Math.min(3, Math.max(0, cIdx)),
+                explanation: String(item.explanation || '').trim()
+              });
+            }
+          });
+        } else {
+          const rows = parseCSVString(raw);
+          const startRow = rows.length > 0 && rows[0][1]?.toLowerCase().includes('question') ? 1 : 0;
+          for (let r = startRow; r < rows.length; r++) {
+            const cols = rows[r];
+            if (cols.length >= 7 && cols[1].trim()) {
+              extracted.push({
+                id: `csv-${Date.now()}-${r}`,
+                category: cols[0].trim() || defaultCategory,
+                batchName,
+                question: cols[1].trim(),
+                options: [cols[2].trim(), cols[3].trim(), cols[4].trim(), cols[5].trim()],
+                correctIndex: mapAnswerLetterToIndex(cols[6].trim()),
+                explanation: (cols[7] || '').trim()
+              });
+            }
+          }
+        }
+      } catch (err) {
+        showToast('Could not parse input. Ensure valid JSON or standard 8-column CSV formatting.', 'error');
+        return;
+      }
+
+      if (extracted.length === 0) {
+        showToast('No valid MCQs detected. Check that each question has 4 options and a valid answer (A/B/C/D).', 'error');
+        return;
+      }
+
+      parsedBulkPreview = extracted;
+      const previewCard = document.getElementById('bulk-preview-card');
+      const previewList = document.getElementById('bulk-preview-list');
+      document.getElementById('bulk-preview-count').textContent = extracted.length;
+      previewCard.classList.remove('hidden');
+
+      const letters = ['A', 'B', 'C', 'D'];
+      previewList.innerHTML = extracted.map((q, idx) => `
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/80 text-xs space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-emerald-700">${idx + 1}. [${escapeHTML(q.category)}]</span>
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">${escapeHTML(q.batchName)}</span>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Ans: ${letters[q.correctIndex]}</span>
+          </div>
+          <p class="font-semibold text-slate-900 text-sm">${escapeHTML(q.question)}</p>
+          <p class="text-slate-600">A) ${escapeHTML(q.options[0])} | B) ${escapeHTML(q.options[1])} | C) ${escapeHTML(q.options[2])} | D) ${escapeHTML(q.options[3])}</p>
+        </div>
+      `).join('');
+
+      previewCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function commitBulkImport() {
+      if (parsedBulkPreview.length === 0) return;
+      const count = parsedBulkPreview.length;
+      const batchLabel = parsedBulkPreview[0]?.batchName || 'Imported Batch';
+      const stamped = parsedBulkPreview.map((q, idx) => ({
+        ...q,
+        createdAt: Date.now() + idx
+      }));
+
+      if (isCloudReady && currentUser) {
+        await batchWriteQuestionsToCloud(currentUser.uid, stamped);
+      } else {
+        questionBank = [...stamped.reverse(), ...questionBank];
+        saveLocalBackup();
+        onBankOrHistoryUpdated();
+      }
+
+      clearBulkArea();
+      showToast(`Saved ${count} MCQs under "${batchLabel}" permanently!`, 'success');
+      switchAdminSubtab('manage');
+    }
+
+    function mapAnswerLetterToIndex(val) {
+      const clean = String(val).trim().toUpperCase();
+      if (clean === 'A' || clean === '0' || clean === '1' || clean === 'OPTION A') return 0;
+      if (clean === 'B' || clean === '2' || clean === 'OPTION B') return 1;
+      if (clean === 'C' || clean === '3' || clean === 'OPTION C') return 2;
+      if (clean === 'D' || clean === '4' || clean === 'OPTION D') return 3;
+      return 0;
+    }
+
+    function parseCSVString(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentCell += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          currentRow.push(currentCell);
+          currentCell = '';
+        } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !insideQuotes) {
+          if (char === '\r') i++;
+          currentRow.push(currentCell);
+          if (currentRow.some(cell => cell.trim() !== '')) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentCell = '';
+        } else {
+          currentCell += char;
+        }
+      }
+      if (currentCell.length > 0 || currentRow.length > 0) {
+        currentRow.push(currentCell);
+        if (currentRow.some(cell => cell.trim() !== '')) {
+          rows.push(currentRow);
+        }
+      }
+      return rows;
+    }
+
+    function renderSavedBatchesGrid() {
+      const grid = document.getElementById('saved-batches-grid');
+      const countLabel = document.getElementById('saved-batches-count');
+      if (!grid) return;
+
+      const batchMap = new Map();
+      questionBank.forEach(q => {
+        const bName = (q.batchName || 'General Bank').trim();
+        batchMap.set(bName, (batchMap.get(bName) || 0) + 1);
+      });
+
+      countLabel.textContent = `${batchMap.size} Saved Set${batchMap.size === 1 ? '' : 's'}`;
+      grid.innerHTML = '';
+
+      if (batchMap.size === 0) {
+        grid.innerHTML = '<p class="text-xs text-slate-500 col-span-full">No saved sets yet. Upload a CSV or JSON file to create your first persistent set.</p>';
+        return;
+      }
+
+      batchMap.forEach((qCount, bName) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2 shadow-2xs';
+        card.innerHTML = `
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-slate-900 truncate" title="${escapeHTML(bName)}">${escapeHTML(bName)}</p>
+            <p class="text-[11px] text-emerald-700 font-semibold">${qCount} Saved MCQs</p>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="practiceSpecificBatch('${encodeURIComponent(bName)}')" class="min-h-[34px] px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-bold transition" title="Practice this set">
+              Practice
+            </button>
+            <button onclick="confirmDeleteBatch('${encodeURIComponent(bName)}')" class="min-h-[34px] w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Delete entire set">
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function practiceSpecificBatch(encodedBatchName) {
+      const bName = decodeURIComponent(encodedBatchName);
+      document.getElementById('lobby-category-select').value = 'ALL';
+      document.getElementById('lobby-batch-select').value = bName;
+      document.getElementById('lobby-count-select').value = 'ALL';
+      startSession('practice');
+    }
+
+    function confirmDeleteBatch(encodedBatchName) {
+      const bName = decodeURIComponent(encodedBatchName);
+      const targets = questionBank.filter(q => (q.batchName || 'General Bank').trim() === bName);
+      showConfirmModal(
+        `Delete Set "${bName}"?`,
+        `This will permanently remove all ${targets.length} questions belonging to "${bName}" from your cloud bank.`,
+        async () => {
+          if (isCloudReady && currentUser) {
+            const batch = writeBatch(db);
+            targets.forEach(q => {
+              batch.delete(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', q.id));
+            });
+            await batch.commit();
+          } else {
+            questionBank = questionBank.filter(q => (q.batchName || 'General Bank').trim() !== bName);
+            saveLocalBackup();
+            onBankOrHistoryUpdated();
+          }
+          showToast(`Deleted "${bName}" (${targets.length} questions).`, 'info');
+        }
+      );
+    }
+
+    function renderQuestionBankList() {
+      renderSavedBatchesGrid();
+
+      const searchTerm = (document.getElementById('bank-search-input')?.value || '').toLowerCase().trim();
+      const catFilter = document.getElementById('bank-filter-category')?.value || 'ALL';
+      const batchFilter = document.getElementById('bank-filter-batch')?.value || 'ALL';
+      const container = document.getElementById('bank-questions-list');
+      if (!container) return;
+
+      const filtered = questionBank.filter(q => {
+        const matchesCat = catFilter === 'ALL' || q.category === catFilter;
+        const matchesBatch = batchFilter === 'ALL' || (q.batchName || 'General Bank') === batchFilter;
+        const matchesSearch = !searchTerm ||
+          q.question.toLowerCase().includes(searchTerm) ||
+          q.options.some(o => o.toLowerCase().includes(searchTerm)) ||
+          (q.explanation || '').toLowerCase().includes(searchTerm) ||
+          (q.batchName || '').toLowerCase().includes(searchTerm);
+        return matchesCat && matchesBatch && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-sm text-slate-500">No questions match your search or filter criteria.</div>`;
+        return;
+      }
+
+      const letters = ['A', 'B', 'C', 'D'];
+      container.innerHTML = filtered.map((q, idx) => `
+        <div class="p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50/40 flex items-start justify-between gap-3 sm:gap-4">
+          <div class="space-y-1.5 flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span class="text-xs font-extrabold text-slate-400">#${idx + 1}</span>
+              <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">${escapeHTML(q.category)}</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700 text-[11px] font-semibold">${escapeHTML(q.batchName || 'General Bank')}</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-bold">Correct: ${letters[q.correctIndex]}</span>
+            </div>
+            <p class="text-sm font-bold text-slate-900">${escapeHTML(q.question)}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-slate-600 pt-1">
+              ${q.options.map((opt, oIdx) => `
+                <div class="${oIdx === q.correctIndex ? 'text-emerald-700 font-bold' : ''}">
+                  ${letters[oIdx]}) ${escapeHTML(opt)}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <button onclick="deleteQuestion('${q.id}')" title="Delete Question" class="w-9 h-9 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0 flex items-center justify-center">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteQuestion(id) {
+      if (isCloudReady && currentUser) {
+        try {
+          await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', id));
+          showToast('Question removed from cloud bank.', 'info');
+        } catch (err) {
+          showToast('Error deleting question.', 'error');
+        }
+      } else {
+        questionBank = questionBank.filter(q => q.id !== id);
+        saveLocalBackup();
+        onBankOrHistoryUpdated();
+        showToast('Question removed from bank.', 'info');
+      }
+    }
+
+    function exportQuestionBank(format) {
+      if (questionBank.length === 0) {
+        showToast('Question bank is empty.', 'warning');
+        return;
+      }
+      if (format === 'json') {
+        triggerDownload(JSON.stringify(questionBank, null, 2), 'TPSC_Question_Bank_Backup.json', 'application/json');
+      } else {
+        const letters = ['A', 'B', 'C', 'D'];
+        const header = 'category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation';
+        const lines = questionBank.map(q => {
+          const esc = (str) => `"${String(str || '').replace(/"/g, '""')}"`;
+          return [
+            esc(q.category),
+            esc(q.question),
+            esc(q.options[0]),
+            esc(q.options[1]),
+            esc(q.options[2]),
+            esc(q.options[3]),
+            esc(letters[q.correctIndex] || 'A'),
+            esc(q.explanation)
+          ].join(',');
+        });
+        triggerDownload([header, ...lines].join('\n'), 'TPSC_Question_Bank_Backup.csv', 'text/csv;charset=utf-8;');
+      }
+      showToast(`Exported ${questionBank.length} questions as ${format.toUpperCase()}.`, 'success');
+    }
+
+    /**
+     * ===================================================================
+     * UI HELPERS: CUSTOM TOASTS, MODALS, ESCAPING & DOWNLOADS
+     * ===================================================================
+     */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-emerald-900 text-white border-emerald-700',
+        error: 'bg-rose-900 text-white border-rose-700',
+        warning: 'bg-amber-900 text-white border-amber-700',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+      const icons = {
+        success: 'fa-circle-check text-emerald-400',
+        error: 'fa-circle-exclamation text-rose-400',
+        warning: 'fa-triangle-exclamation text-amber-400',
+        info: 'fa-circle-info text-blue-400'
+      };
+
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-xs font-semibold transition-all transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+      toast.innerHTML = `
+        <i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i>
+        <span class="flex-1 leading-snug">${escapeHTML(message)}</span>
+      `;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
+
+    function showConfirmModal(title, message, onConfirm) {
+      const modal = document.getElementById('custom-modal');
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-message').textContent = message;
+
+      const cancelBtn = document.getElementById('modal-cancel-btn');
+      const confirmBtn = document.getElementById('modal-confirm-btn');
+
+      const closeModal = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      };
+
+      cancelBtn.onclick = closeModal;
+      confirmBtn.onclick = () => {
+        closeModal();
+        onConfirm();
+      };
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function escapeHTML(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function triggerDownload(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Expose functions globally for inline HTML event handlers inside ES Module scope
+    window.switchTab = switchTab;
+    window.openAccountModal = openAccountModal;
+    window.closeAccountModal = closeAccountModal;
+    window.handleEmailLinkOrRegister = handleEmailLinkOrRegister;
+    window.handleEmailSignIn = handleEmailSignIn;
+    window.handleSignOutToGuest = handleSignOutToGuest;
+    window.updateLobbyAvailableCount = updateLobbyAvailableCount;
+    window.startSession = startSession;
+    window.confirmClearHistory = confirmClearHistory;
+    window.quickLaunchDefault = quickLaunchDefault;
+    window.handleFinishSessionClick = handleFinishSessionClick;
+    window.navigateQuestion = navigateQuestion;
+    window.clearCurrentResponse = clearCurrentResponse;
+    window.markForReviewAndNext = markForReviewAndNext;
+    window.saveAndNext = saveAndNext;
+    window.retakeSameSession = retakeSameSession;
+    window.filterScorecardReview = filterScorecardReview;
+    window.switchAdminSubtab = switchAdminSubtab;
+    window.handleSingleQuestionSubmit = handleSingleQuestionSubmit;
+    window.loadSampleTemplate = loadSampleTemplate;
+    window.downloadTemplateFile = downloadTemplateFile;
+    window.handleBulkFileUpload = handleBulkFileUpload;
+    window.clearBulkArea = clearBulkArea;
+    window.parseAndPreviewBulk = parseAndPreviewBulk;
+    window.commitBulkImport = commitBulkImport;
+    window.exportQuestionBank = exportQuestionBank;
+    window.renderQuestionBankList = renderQuestionBankList;
+    window.deleteQuestion = deleteQuestion;
     window.seedStarterPackToCloud = seedStarterPackToCloud;
     window.practiceSpecificBatch = practiceSpecificBatch;
     window.confirmDeleteBatch = confirmDeleteBatch;
