@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>TPSC ExamPrep Portal | Tripura GK & Current Affairs Mock Test</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,16 +52,35 @@
     }
     .option-card {
       transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-tap-highlight-color: transparent;
     }
     .option-card:active {
-      transform: scale(0.995);
+      transform: scale(0.99);
+    }
+    /* Mobile safe-area utilities & smooth drawer transitions */
+    .pb-safe {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+    .bottom-nav-spacer {
+      padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    }
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col bottom-nav-spacer md:pb-0">
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+  <!-- Toast Notification Container (Positioned above mobile bottom nav) -->
+  <div id="toast-container" class="fixed bottom-20 md:bottom-5 right-0 sm:right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
   <!-- Custom Confirmation Modal (No native confirm/alert) -->
   <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
@@ -88,32 +107,32 @@
 
   <!-- Top Academic Header & Navigation -->
   <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3 md:h-16 gap-3">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14 md:h-16 gap-2">
         <!-- Brand Logo -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/30">
-              <i class="fa-solid fa-landmark-dome text-white text-lg"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-extrabold text-lg tracking-tight text-white">TPSC <span class="text-emerald-400">ExamPrep</span></span>
-                <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">TCS / TPS Portal</span>
-              </div>
-              <p class="text-xs text-slate-400">Tripura GK, Current Affairs & Mock Test Suite</p>
-            </div>
+        <div class="flex items-center gap-2.5 cursor-pointer min-w-0" onclick="switchTab('dashboard')">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/30 shrink-0">
+            <i class="fa-solid fa-landmark-dome text-white text-base md:text-lg"></i>
           </div>
-
-          <!-- Quick Status Badge on Mobile -->
-          <div class="md:hidden flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-            <i id="mobile-sync-icon" class="fa-solid fa-cloud text-emerald-400 text-xs"></i>
-            <span id="mobile-q-count" class="text-xs font-bold text-slate-200">Syncing...</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-base md:text-lg tracking-tight text-white truncate">TPSC <span class="text-emerald-400">ExamPrep</span></span>
+              <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">TCS / TPS Portal</span>
+            </div>
+            <p class="hidden sm:block text-xs text-slate-400 truncate">Tripura GK, Current Affairs & Mock Test Suite</p>
           </div>
         </div>
 
-        <!-- Cloud Sync Status & Account Controls -->
-        <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Compact Mobile Cloud Sync & Quick Sync Action -->
+        <div class="flex md:hidden items-center gap-2 shrink-0">
+          <div id="mobile-cloud-pill" onclick="openAccountModal()" class="flex items-center gap-1.5 bg-slate-800 active:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs cursor-pointer">
+            <span id="mobile-cloud-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+            <span id="mobile-q-count" class="font-bold text-slate-100 whitespace-nowrap">Syncing...</span>
+          </div>
+        </div>
+
+        <!-- Desktop Cloud Sync Status, Account & Primary Navigation -->
+        <div class="hidden md:flex items-center gap-2.5">
           <div id="cloud-sync-pill" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
             <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
             <span id="cloud-sync-text" class="font-semibold text-slate-200">Connecting Cloud...</span>
@@ -124,17 +143,17 @@
             <span id="auth-btn-label">Cloud Account</span>
           </button>
 
-          <!-- Primary Navigation Tabs -->
-          <nav class="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700/70 overflow-x-auto">
-            <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-tab flex-1 md:flex-none flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-sm">
+          <!-- Primary Navigation Tabs (Desktop) -->
+          <nav class="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700/70">
+            <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-tab flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-sm">
               <i class="fa-solid fa-house"></i>
               <span>Dashboard & Lobby</span>
             </button>
-            <button id="nav-arena" onclick="switchTab('arena')" class="nav-tab flex-1 md:flex-none flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
+            <button id="nav-arena" onclick="switchTab('arena')" class="nav-tab flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
               <i class="fa-solid fa-pen-to-square"></i>
               <span>Exam / Practice Arena</span>
             </button>
-            <button id="nav-admin" onclick="switchTab('admin')" class="nav-tab flex-1 md:flex-none flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
+            <button id="nav-admin" onclick="switchTab('admin')" class="nav-tab flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
               <i class="fa-solid fa-cloud-arrow-up"></i>
               <span>Question Upload Portal</span>
             </button>
@@ -143,6 +162,31 @@
       </div>
     </div>
   </header>
+
+  <!-- Mobile Bottom Navigation Bar (< 768px) -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 pb-safe shadow-2xl">
+    <div class="grid grid-cols-4 h-16 max-w-lg mx-auto px-1">
+      <button id="mob-nav-dashboard" onclick="switchTab('dashboard')" class="flex flex-col items-center justify-center gap-1 text-emerald-400 font-bold text-[11px] transition">
+        <i class="fa-solid fa-house text-base"></i>
+        <span>Lobby</span>
+      </button>
+      <button id="mob-nav-arena" onclick="switchTab('arena')" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white font-semibold text-[11px] transition">
+        <i class="fa-solid fa-pen-to-square text-base"></i>
+        <span>Practice</span>
+      </button>
+      <button id="mob-nav-admin" onclick="switchTab('admin')" class="relative flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white font-semibold text-[11px] transition">
+        <div class="relative">
+          <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+          <span id="mob-nav-bank-badge" class="absolute -top-1.5 -right-3.5 px-1.5 py-0.2 rounded-full bg-emerald-600 text-white text-[9px] font-extrabold leading-tight">0</span>
+        </div>
+        <span>Upload / Bank</span>
+      </button>
+      <button id="mob-nav-account" onclick="openAccountModal()" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white font-semibold text-[11px] transition">
+        <i class="fa-solid fa-user-shield text-base text-emerald-400"></i>
+        <span id="mob-auth-label" class="truncate max-w-[72px]">Cloud Sync</span>
+      </button>
+    </div>
+  </nav>
 
   <!-- Cloud Account & Cross-Device Sync Modal -->
   <div id="account-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
@@ -183,21 +227,21 @@
           Your CSV/JSON questions and mock history are saved automatically right now. Want to access this exact question bank from another phone or laptop? Sign in or link an Email & Password below:
         </p>
         <div class="space-y-2.5">
-          <input type="email" id="auth-email-input" placeholder="Enter your email address" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
-          <input type="password" id="auth-pass-input" placeholder="Password (min 6 characters)" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none" />
+          <input type="email" id="auth-email-input" placeholder="Enter your email address" class="w-full min-h-[44px] rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none" />
+          <input type="password" id="auth-pass-input" placeholder="Password (min 6 characters)" class="w-full min-h-[44px] rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none" />
         </div>
         <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <button onclick="handleEmailSignIn()" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
+          <button onclick="handleEmailSignIn()" class="min-h-[44px] py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
             Sign In (Existing)
           </button>
-          <button onclick="handleEmailLinkOrRegister()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition">
+          <button onclick="handleEmailLinkOrRegister()" class="min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition">
             Save / Link Account
           </button>
         </div>
       </div>
 
       <div id="account-signedin-actions" class="hidden pt-1">
-        <button onclick="handleSignOutToGuest()" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold text-xs border border-slate-200 transition">
+        <button onclick="handleSignOutToGuest()" class="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold text-xs border border-slate-200 transition">
           <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Sign Out
         </button>
       </div>
@@ -205,40 +249,40 @@
   </div>
 
   <!-- Main Content Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <!-- =================================================================== -->
     <!-- VIEW 1: DASHBOARD / TEST LOBBY                                      -->
     <!-- =================================================================== -->
-    <section id="view-dashboard" class="space-y-6">
+    <section id="view-dashboard" class="space-y-5 sm:space-y-6">
       <!-- Hero Banner & Quick Start Modes -->
-      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-4 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div class="absolute right-0 top-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          <div class="lg:col-span-7 space-y-3">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
+          <div class="lg:col-span-7 space-y-2.5 sm:space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[11px] sm:text-xs font-semibold">
               <i class="fa-solid fa-award"></i>
-              <span>TPSC Combined / TCS Grade-II Prelims Pattern (+1 / -0.25)</span>
+              <span>TPSC Combined / TCS Prelims (+1 / -0.25)</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">
-              Master Tripura GK & Current Affairs with Real Exam Simulation
+            <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug sm:leading-tight">
+              Master Tripura GK & Current Affairs Anywhere
             </h1>
-            <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
+            <p class="text-slate-300 text-xs sm:text-base max-w-2xl leading-relaxed">
               Practice topic-wise MCQs with instant explanations or take timed full-length Mock Tests featuring official TPSC negative marking and question palette navigation.
             </p>
           </div>
 
           <!-- Test Configuration & Launch Card -->
-          <div class="lg:col-span-5 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 space-y-4">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
-              <span class="text-sm font-bold text-emerald-300 uppercase tracking-wider">Configure Session</span>
+          <div class="lg:col-span-5 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3.5 sm:space-y-4">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2.5 sm:pb-3">
+              <span class="text-xs sm:text-sm font-bold text-emerald-300 uppercase tracking-wider">Configure Session</span>
               <span id="lobby-available-badge" class="text-xs bg-slate-900/70 text-slate-200 px-2.5 py-1 rounded-lg font-medium">Loading...</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1">Subject / Category</label>
-                <select id="lobby-category-select" onchange="updateLobbyAvailableCount()" class="w-full bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
+                <select id="lobby-category-select" onchange="updateLobbyAvailableCount()" class="w-full min-h-[44px] bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
                   <option value="ALL">All Categories (Mixed)</option>
                   <option value="Tripura GK">Tripura GK (History, Geo & Culture)</option>
                   <option value="Current Affairs">Current Affairs (Tripura & National)</option>
@@ -250,7 +294,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1">Saved Batch / CSV Set</label>
-                <select id="lobby-batch-select" onchange="updateLobbyAvailableCount()" class="w-full bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
+                <select id="lobby-batch-select" onchange="updateLobbyAvailableCount()" class="w-full min-h-[44px] bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
                   <option value="ALL">All Saved Sets</option>
                 </select>
               </div>
@@ -259,7 +303,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1">Number of Questions</label>
-                <select id="lobby-count-select" class="w-full bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
+                <select id="lobby-count-select" class="w-full min-h-[44px] bg-slate-900/90 border border-slate-600 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-400">
                   <option value="5">5 Questions (Quick)</option>
                   <option value="10">10 Questions (Mini)</option>
                   <option value="15" selected>15 Questions (Standard)</option>
@@ -269,95 +313,95 @@
                   <option value="ALL">All Available</option>
                 </select>
               </div>
-              <label class="flex items-center justify-between bg-slate-900/80 border border-slate-600 rounded-xl px-3.5 py-2.5 cursor-pointer select-none">
+              <label class="flex items-center justify-between min-h-[44px] bg-slate-900/80 border border-slate-600 rounded-xl px-3.5 py-2 cursor-pointer select-none">
                 <div>
                   <span class="block text-xs font-bold text-white">Negative Marking</span>
                   <span class="block text-[10px] text-slate-400">-0.25 per wrong answer</span>
                 </div>
-                <input type="checkbox" id="lobby-negative-toggle" checked class="w-4 h-4 accent-emerald-500 rounded cursor-pointer" />
+                <input type="checkbox" id="lobby-negative-toggle" checked class="w-5 h-5 accent-emerald-500 rounded cursor-pointer" />
               </label>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <button onclick="startSession('practice')" class="flex items-center justify-center gap-2 bg-white text-slate-900 hover:bg-emerald-50 font-bold text-sm py-3 px-4 rounded-xl shadow-md transition">
+            <div class="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1">
+              <button onclick="startSession('practice')" class="min-h-[48px] flex items-center justify-center gap-2 bg-white text-slate-900 hover:bg-emerald-50 active:scale-[0.99] font-bold text-xs sm:text-sm py-3 px-3 sm:px-4 rounded-xl shadow-md transition">
                 <i class="fa-solid fa-book-open-reader text-emerald-600"></i>
                 <span>Practice Mode</span>
               </button>
-              <button onclick="startSession('mock')" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm py-3 px-4 rounded-xl shadow-lg shadow-emerald-950/40 transition">
+              <button onclick="startSession('mock')" class="min-h-[48px] flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-slate-950 font-extrabold text-xs sm:text-sm py-3 px-3 sm:px-4 rounded-xl shadow-lg shadow-emerald-950/40 transition">
                 <i class="fa-solid fa-stopwatch"></i>
-                <span>Start Mock Test</span>
+                <span>Mock Test</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Key Metrics Row -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+      <!-- Key Metrics Row (2x2 on Mobile, 4-col on Desktop) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base sm:text-xl shrink-0">
             <i class="fa-solid fa-layer-group"></i>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Question Bank</p>
-            <p id="stat-total-questions" class="text-2xl font-extrabold text-slate-900 mt-0.5">15</p>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Question Bank</p>
+            <p id="stat-total-questions" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">15</p>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+        <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base sm:text-xl shrink-0">
             <i class="fa-solid fa-file-signature"></i>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mocks Taken</p>
-            <p id="stat-mocks-taken" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Mocks Taken</p>
+            <p id="stat-mocks-taken" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+        <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base sm:text-xl shrink-0">
             <i class="fa-solid fa-bullseye"></i>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg. Accuracy</p>
-            <p id="stat-avg-accuracy" class="text-2xl font-extrabold text-slate-900 mt-0.5">0%</p>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Avg. Accuracy</p>
+            <p id="stat-avg-accuracy" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">0%</p>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+        <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base sm:text-xl shrink-0">
             <i class="fa-solid fa-trophy"></i>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Best Mock Score</p>
-            <p id="stat-best-score" class="text-2xl font-extrabold text-slate-900 mt-0.5">--</p>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Best Mock</p>
+            <p id="stat-best-score" class="text-lg sm:text-2xl font-extrabold text-slate-900 mt-0.5 truncate">--</p>
           </div>
         </div>
       </div>
 
       <!-- Category Breakdown & Recent Mock Test History -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         <!-- Category Breakdown -->
-        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
-          <div class="flex items-center justify-between mb-5">
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6">
+          <div class="flex items-center justify-between gap-2 mb-4 sm:mb-5">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Syllabus & Category Breakdown</h2>
-              <p class="text-xs text-slate-500">Click any topic card to start an instant practice set</p>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Syllabus & Category Breakdown</h2>
+              <p class="text-xs text-slate-500">Tap any topic card for instant practice</p>
             </div>
-            <button onclick="switchTab('admin')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg">
+            <button onclick="switchTab('admin')" class="min-h-[38px] text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-xl shrink-0">
               <i class="fa-solid fa-plus"></i> Add MCQs
             </button>
           </div>
-          <div id="category-breakdown-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div id="category-breakdown-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <!-- Dynamically populated category cards -->
           </div>
         </div>
 
         <!-- Recent Mock Test History -->
-        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col">
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6 flex flex-col">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Recent Mock Scores</h2>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Recent Mock Scores</h2>
               <p class="text-xs text-slate-500">Includes +1 / -0.25 negative marking</p>
             </div>
             <button id="clear-history-btn" onclick="confirmClearHistory()" class="text-xs font-semibold text-slate-400 hover:text-rose-600 transition hidden">
@@ -374,62 +418,71 @@
     <!-- =================================================================== -->
     <!-- VIEW 2: TEST / PRACTICE ARENA & SCORECARD REVIEW                    -->
     <!-- =================================================================== -->
-    <section id="view-arena" class="hidden space-y-6">
+    <section id="view-arena" class="hidden space-y-4 sm:space-y-6">
       <!-- Empty/No Active Session Fallback -->
-      <div id="arena-empty-state" class="bg-white rounded-2xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-8 shadow-xs">
+      <div id="arena-empty-state" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-10 text-center max-w-xl mx-auto my-4 sm:my-8 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-4">
           <i class="fa-solid fa-clipboard-question"></i>
         </div>
-        <h2 class="text-xl font-bold text-slate-900">No Active Practice or Mock Session</h2>
-        <p class="text-sm text-slate-500 mt-2 mb-6">Choose Practice Mode for immediate answer explanations or Mock Test Mode for a timed TPSC examination simulation.</p>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">No Active Practice or Mock Session</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-2 mb-6">Choose Practice Mode for immediate answer explanations or Mock Test Mode for a timed TPSC examination simulation.</p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <button onclick="quickLaunchDefault('practice')" class="px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition">
+          <button onclick="quickLaunchDefault('practice')" class="min-h-[48px] px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition">
             <i class="fa-solid fa-book-open mr-2 text-emerald-400"></i>Start Quick Practice
           </button>
-          <button onclick="quickLaunchDefault('mock')" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition">
+          <button onclick="quickLaunchDefault('mock')" class="min-h-[48px] px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition">
             <i class="fa-solid fa-stopwatch mr-2"></i>Start Full Mock Test
           </button>
         </div>
       </div>
 
       <!-- Active Exam / Practice Interface -->
-      <div id="arena-active-container" class="hidden space-y-5">
-        <!-- Exam Top Control Bar -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <span id="arena-mode-badge" class="px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              MOCK TEST MODE
-            </span>
-            <div>
-              <h2 id="arena-session-title" class="text-sm sm:text-base font-bold text-slate-900">TPSC Prelims Mock Test</h2>
-              <p id="arena-marking-info" class="text-xs text-slate-500">Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-rose-600 font-semibold">-0.25</span> Wrong</p>
+      <div id="arena-active-container" class="hidden space-y-4 sm:space-y-5">
+        <!-- Sticky Compact Exam Top Control Bar -->
+        <div class="sticky top-14 md:top-16 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-sm flex items-center justify-between gap-2 sm:gap-4">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span id="arena-mode-badge" class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 shrink-0">
+                MOCK TEST
+              </span>
+              <span id="mobile-arena-q-counter" class="md:hidden text-xs font-extrabold text-slate-900">Q 1 / 15</span>
             </div>
+            <h2 id="arena-session-title" class="hidden md:block text-sm sm:text-base font-bold text-slate-900 truncate mt-0.5">TPSC Prelims Mock Test</h2>
+            <p id="arena-marking-info" class="hidden sm:block text-[11px] sm:text-xs text-slate-500 truncate">Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-rose-600 font-semibold">-0.25</span> Wrong</p>
           </div>
 
-          <div class="flex items-center gap-3 ml-auto">
+          <div class="flex items-center gap-2 sm:gap-3 shrink-0">
             <!-- Timer Box (Visible in Mock Mode) -->
-            <div id="arena-timer-box" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-mono text-sm font-bold shadow-xs">
+            <div id="arena-timer-box" class="flex items-center gap-1.5 bg-slate-900 text-white px-2.5 sm:px-4 py-2 rounded-xl font-mono text-xs sm:text-sm font-bold shadow-xs">
               <i class="fa-regular fa-clock text-emerald-400"></i>
               <span id="arena-timer-display">15:00</span>
             </div>
 
+            <!-- Mobile Grid / Palette Drawer Trigger Button -->
+            <button type="button" onclick="toggleMobilePaletteDrawer(true)" class="lg:hidden min-h-[40px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 border border-slate-300 font-bold text-xs flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-grip text-emerald-600"></i>
+              <span>Grid</span>
+              <span id="mobile-palette-badge" class="px-1.5 py-0.2 rounded-md bg-emerald-600 text-white text-[10px] font-extrabold">0/15</span>
+            </button>
+
             <!-- Submit / Finish Button -->
-            <button id="arena-submit-btn" onclick="handleFinishSessionClick()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition flex items-center gap-2">
+            <button id="arena-submit-btn" onclick="handleFinishSessionClick()" class="min-h-[40px] px-3 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center gap-1.5">
               <i class="fa-solid fa-paper-plane"></i>
-              <span id="arena-submit-label">Submit Test</span>
+              <span id="arena-submit-label" class="hidden sm:inline">Submit Test</span>
+              <span class="sm:hidden">Submit</span>
             </button>
           </div>
         </div>
 
-        <!-- Main Exam Grid: Question Card (Left) + Question Palette Sidebar (Right) -->
+        <!-- Main Exam Grid: Question Card (Left) + Desktop Question Palette Sidebar (Right) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <!-- Question Display Card -->
           <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
             <!-- Question Meta Header -->
-            <div class="bg-slate-50 border-b border-slate-200 px-6 py-3.5 flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2.5">
-                <span id="q-number-badge" class="bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-lg">Question 1 of 15</span>
-                <span id="q-category-tag" class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-lg">Tripura Geography</span>
+            <div class="bg-slate-50 border-b border-slate-200 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span id="q-number-badge" class="bg-slate-900 text-white text-xs font-bold px-2.5 py-1 rounded-lg shrink-0">Question 1 of 15</span>
+                <span id="q-category-tag" class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-lg truncate">Tripura Geography</span>
               </div>
               <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
                 <span id="q-status-pill" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">Not Answered</span>
@@ -437,50 +490,50 @@
             </div>
 
             <!-- Question Body -->
-            <div class="p-6 sm:p-7 space-y-6">
-              <p id="q-text" class="text-base sm:text-lg font-semibold text-slate-900 leading-relaxed">
+            <div class="p-4 sm:p-7 space-y-5">
+              <p id="q-text" class="text-[15px] sm:text-lg font-semibold text-slate-900 leading-relaxed">
                 Loading question...
               </p>
 
-              <!-- 4 Options Container -->
+              <!-- 4 Full-Width Touch-Friendly Options -->
               <div id="q-options-container" class="space-y-3">
                 <!-- Options A, B, C, D rendered here -->
               </div>
 
               <!-- Instant Explanation Box (Shown in Practice Mode after answering) -->
-              <div id="practice-explanation-box" class="hidden rounded-2xl border p-5 space-y-2 transition-all">
+              <div id="practice-explanation-box" class="hidden rounded-2xl border p-4 sm:p-5 space-y-2 transition-all">
                 <div class="flex items-center gap-2 font-bold text-sm" id="practice-feedback-header">
                   <i class="fa-solid fa-circle-check"></i>
                   <span>Correct Answer!</span>
                 </div>
-                <p id="practice-explanation-text" class="text-sm text-slate-700 leading-relaxed"></p>
+                <p id="practice-explanation-text" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
               </div>
             </div>
 
-            <!-- Action Footer -->
-            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <!-- Desktop Action Footer -->
+            <div class="hidden md:flex bg-slate-50 border-t border-slate-200 px-6 py-4 flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2">
-                <button onclick="navigateQuestion(-1)" id="btn-prev-q" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs sm:text-sm transition disabled:opacity-40">
+                <button onclick="navigateQuestion(-1)" id="btn-prev-q" class="min-h-[42px] px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-sm transition disabled:opacity-40">
                   <i class="fa-solid fa-arrow-left mr-1"></i> Previous
                 </button>
-                <button onclick="clearCurrentResponse()" id="btn-clear-q" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-600 font-semibold text-xs sm:text-sm transition">
+                <button onclick="clearCurrentResponse()" id="btn-clear-q" class="min-h-[42px] px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-600 font-semibold text-sm transition">
                   Clear Response
                 </button>
               </div>
 
               <div class="flex items-center gap-2">
-                <button onclick="markForReviewAndNext()" id="btn-review-next" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-xs sm:text-sm transition">
+                <button onclick="markForReviewAndNext()" id="btn-review-next" class="min-h-[42px] px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-sm transition">
                   <i class="fa-solid fa-bookmark mr-1"></i> Mark for Review & Next
                 </button>
-                <button onclick="saveAndNext()" id="btn-save-next" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs transition">
+                <button onclick="saveAndNext()" id="btn-save-next" class="min-h-[42px] px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition">
                   Save & Next <i class="fa-solid fa-arrow-right ml-1"></i>
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Question Palette Sidebar -->
-          <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-5">
+          <!-- Desktop Question Palette Sidebar -->
+          <div class="hidden lg:block lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-5">
             <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
               <h3 class="font-bold text-slate-900 text-sm">Question Palette</h3>
               <span id="palette-progress-text" class="text-xs font-semibold text-slate-500">0 / 15 Answered</span>
@@ -512,75 +565,145 @@
             </div>
 
             <div class="pt-2 border-t border-slate-100">
-              <button onclick="handleFinishSessionClick()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition">
+              <button onclick="handleFinishSessionClick()" class="w-full min-h-[44px] py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition">
                 Finish & View Scorecard
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Sticky Thumb-Friendly Mobile Exam Action Bar (Visible during active session on < 768px) -->
+        <div id="mobile-exam-action-bar" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 pt-2.5 pb-safe shadow-[0_-6px_20px_rgba(15,23,42,0.08)]">
+          <div class="grid grid-cols-4 gap-2 max-w-lg mx-auto">
+            <button onclick="navigateQuestion(-1)" id="mob-btn-prev" class="min-h-[46px] rounded-xl border border-slate-300 bg-slate-50 active:bg-slate-200 text-slate-700 font-bold text-xs flex flex-col items-center justify-center disabled:opacity-40">
+              <i class="fa-solid fa-arrow-left text-xs mb-0.5"></i>
+              <span>Prev</span>
+            </button>
+            <button onclick="markForReviewAndNext()" class="min-h-[46px] rounded-xl bg-amber-100 active:bg-amber-200 text-amber-900 font-bold text-xs flex flex-col items-center justify-center">
+              <i class="fa-solid fa-bookmark text-xs mb-0.5"></i>
+              <span>Review</span>
+            </button>
+            <button onclick="clearCurrentResponse()" class="min-h-[46px] rounded-xl border border-slate-300 bg-white active:bg-rose-50 text-slate-600 font-bold text-xs flex flex-col items-center justify-center">
+              <i class="fa-solid fa-eraser text-xs mb-0.5"></i>
+              <span>Clear</span>
+            </button>
+            <button onclick="saveAndNext()" id="mob-btn-next" class="min-h-[46px] rounded-xl bg-emerald-600 active:bg-emerald-700 text-white font-extrabold text-xs flex flex-col items-center justify-center shadow-sm">
+              <i class="fa-solid fa-arrow-right text-xs mb-0.5"></i>
+              <span>Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Bottom Sheet / Slide-Over Drawer for Question Palette -->
+      <div id="mobile-palette-drawer" class="fixed inset-0 z-50 hidden lg:hidden">
+        <!-- Backdrop -->
+        <div onclick="toggleMobilePaletteDrawer(false)" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
+        <!-- Bottom Sheet Panel -->
+        <div class="fixed inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl border-t border-slate-200 p-5 pb-safe max-h-[85vh] flex flex-col space-y-4 transform transition-transform">
+          <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto -mt-1"></div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">Question Palette</h3>
+              <p id="mob-drawer-progress-text" class="text-xs font-semibold text-slate-500">0 / 15 Answered</p>
+            </div>
+            <button onclick="toggleMobilePaletteDrawer(false)" class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+              <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+          </div>
+
+          <!-- Legend -->
+          <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200/70">
+            <div class="flex items-center gap-2">
+              <span id="mob-legend-answered" class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-[11px]">0</span>
+              <span>Answered</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="mob-legend-unanswered" class="w-6 h-6 rounded-lg bg-rose-500 text-white font-bold flex items-center justify-center text-[11px]">0</span>
+              <span>Not Answered</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="mob-legend-review" class="w-6 h-6 rounded-lg bg-amber-500 text-white font-bold flex items-center justify-center text-[11px]">0</span>
+              <span>Marked Review</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="mob-legend-notvisited" class="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[11px]">0</span>
+              <span>Not Visited</span>
+            </div>
+          </div>
+
+          <!-- Numbered Touch Grid -->
+          <div id="mob-question-palette-grid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 overflow-y-auto py-1 flex-1">
+            <!-- Populated dynamically -->
+          </div>
+
+          <button onclick="toggleMobilePaletteDrawer(false); handleFinishSessionClick();" class="w-full min-h-[48px] py-3 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider shadow-md">
+            Finish & View Scorecard
+          </button>
         </div>
       </div>
 
       <!-- ================================================================= -->
       <!-- SCORECARD & DETAILED SOLUTION REVIEW (Shown on Mock/Practice End) -->
       <!-- ================================================================= -->
-      <div id="arena-scorecard-container" class="hidden space-y-6">
+      <div id="arena-scorecard-container" class="hidden space-y-5 sm:space-y-6">
         <!-- Scorecard Top Summary -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-slate-900 to-emerald-950 p-6 sm:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="bg-gradient-to-r from-slate-900 to-emerald-950 p-5 sm:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
             <div>
-              <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
+              <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-2">
                 Official Performance Report
               </span>
-              <h2 id="scorecard-title" class="text-2xl sm:text-3xl font-extrabold">TPSC Prelims Mock Test Scorecard</h2>
-              <p id="scorecard-subtitle" class="text-slate-300 text-sm mt-1">Completed on Today • Negative Marking Applied (-0.25 per wrong answer)</p>
+              <h2 id="scorecard-title" class="text-xl sm:text-3xl font-extrabold">TPSC Prelims Mock Test Scorecard</h2>
+              <p id="scorecard-subtitle" class="text-slate-300 text-xs sm:text-sm mt-1">Completed on Today • Negative Marking Applied (-0.25 per wrong answer)</p>
             </div>
-            <div class="flex items-center gap-3">
-              <button onclick="switchTab('dashboard')" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/15 transition">
+            <div class="grid grid-cols-2 sm:flex items-center gap-2.5 sm:gap-3">
+              <button onclick="switchTab('dashboard')" class="min-h-[44px] px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/15 transition flex items-center justify-center">
                 <i class="fa-solid fa-house mr-1.5"></i> Lobby
               </button>
-              <button onclick="retakeSameSession()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-md transition">
-                <i class="fa-solid fa-rotate-right mr-1.5"></i> Retake Test
+              <button onclick="retakeSameSession()" class="min-h-[44px] px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-md transition flex items-center justify-center">
+                <i class="fa-solid fa-rotate-right mr-1.5"></i> Retake
               </button>
             </div>
           </div>
 
           <!-- Score Stats Grid -->
-          <div class="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 bg-slate-50/70 border-b border-slate-200">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-              <p class="text-xs font-semibold text-slate-500 uppercase">Net Score</p>
-              <p id="sc-net-score" class="text-2xl font-extrabold text-emerald-600 mt-1">0.00</p>
+          <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 bg-slate-50/70 border-b border-slate-200">
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 text-center">
+              <p class="text-[11px] font-semibold text-slate-500 uppercase">Net Score</p>
+              <p id="sc-net-score" class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1">0.00</p>
               <p id="sc-max-score" class="text-[11px] text-slate-400">out of 15.00</p>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-              <p class="text-xs font-semibold text-slate-500 uppercase">Accuracy</p>
-              <p id="sc-accuracy" class="text-2xl font-extrabold text-slate-900 mt-1">0%</p>
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 text-center">
+              <p class="text-[11px] font-semibold text-slate-500 uppercase">Accuracy</p>
+              <p id="sc-accuracy" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">0%</p>
               <p class="text-[11px] text-slate-400">Attempted basis</p>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 text-center">
-              <p class="text-xs font-semibold text-emerald-700 uppercase">Correct (+1)</p>
-              <p id="sc-correct" class="text-2xl font-extrabold text-emerald-600 mt-1">0</p>
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 text-center">
+              <p class="text-[11px] font-semibold text-emerald-700 uppercase">Correct (+1)</p>
+              <p id="sc-correct" class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1">0</p>
               <p id="sc-positive-marks" class="text-[11px] text-emerald-600">+0.00 marks</p>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-rose-200 bg-rose-50/30 text-center">
-              <p class="text-xs font-semibold text-rose-700 uppercase">Wrong (-0.25)</p>
-              <p id="sc-wrong" class="text-2xl font-extrabold text-rose-600 mt-1">0</p>
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-rose-200 bg-rose-50/30 text-center">
+              <p class="text-[11px] font-semibold text-rose-700 uppercase">Wrong (-0.25)</p>
+              <p id="sc-wrong" class="text-xl sm:text-2xl font-extrabold text-rose-600 mt-1">0</p>
               <p id="sc-negative-marks" class="text-[11px] text-rose-600">-0.00 marks</p>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-              <p class="text-xs font-semibold text-slate-500 uppercase">Unattempted</p>
-              <p id="sc-unattempted" class="text-2xl font-extrabold text-slate-700 mt-1">0</p>
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 text-center">
+              <p class="text-[11px] font-semibold text-slate-500 uppercase">Unattempted</p>
+              <p id="sc-unattempted" class="text-xl sm:text-2xl font-extrabold text-slate-700 mt-1">0</p>
               <p class="text-[11px] text-slate-400">0.00 marks</p>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
-              <p class="text-xs font-semibold text-slate-500 uppercase">Time Taken</p>
-              <p id="sc-time-taken" class="text-2xl font-extrabold text-slate-900 mt-1">00:00</p>
+            <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 text-center">
+              <p class="text-[11px] font-semibold text-slate-500 uppercase">Time Taken</p>
+              <p id="sc-time-taken" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">00:00</p>
               <p class="text-[11px] text-slate-400">mm:ss</p>
             </div>
           </div>
 
           <!-- Category-wise Performance Breakdown -->
-          <div class="p-6">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Subject / Category-Wise Analysis</h3>
+          <div class="p-4 sm:p-6">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Subject / Category-Wise Analysis</h3>
             <div id="sc-category-breakdown" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <!-- Populated dynamically -->
             </div>
@@ -588,17 +711,17 @@
         </div>
 
         <!-- Question-by-Question Solution Review -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-6 space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-              <h3 class="text-lg font-bold text-slate-900">Detailed Answer Key & Explanations</h3>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900">Detailed Answer Key & Explanations</h3>
               <p class="text-xs text-slate-500">Compare your marked responses against official solutions</p>
             </div>
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="filterScorecardReview('ALL')" id="rev-filter-ALL" class="rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">All</button>
-              <button onclick="filterScorecardReview('CORRECT')" id="rev-filter-CORRECT" class="rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-emerald-50">Correct</button>
-              <button onclick="filterScorecardReview('WRONG')" id="rev-filter-WRONG" class="rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-rose-50">Wrong</button>
-              <button onclick="filterScorecardReview('UNATTEMPTED')" id="rev-filter-UNATTEMPTED" class="rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Unattempted</button>
+            <div class="grid grid-cols-4 sm:flex items-center gap-1.5">
+              <button onclick="filterScorecardReview('ALL')" id="rev-filter-ALL" class="rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">All</button>
+              <button onclick="filterScorecardReview('CORRECT')" id="rev-filter-CORRECT" class="rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-emerald-50">Correct</button>
+              <button onclick="filterScorecardReview('WRONG')" id="rev-filter-WRONG" class="rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-rose-50">Wrong</button>
+              <button onclick="filterScorecardReview('UNATTEMPTED')" id="rev-filter-UNATTEMPTED" class="rev-filter-btn min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Skipped</button>
             </div>
           </div>
 
@@ -612,39 +735,39 @@
     <!-- =================================================================== -->
     <!-- VIEW 3: ADMIN / QUESTION UPLOAD & BANK MANAGEMENT PORTAL            -->
     <!-- =================================================================== -->
-    <section id="view-admin" class="hidden space-y-6">
+    <section id="view-admin" class="hidden space-y-5 sm:space-y-6">
       <!-- Portal Header & Sub-tabs -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div class="flex items-center gap-2.5">
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">Persistent Question Bank & Upload Portal</h1>
-            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">Auto-Saved to Cloud</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-lg sm:text-2xl font-extrabold text-slate-900">Question Bank & Upload Portal</h1>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">Auto-Saved to Cloud</span>
           </div>
-          <p class="text-sm text-slate-500 mt-0.5">Upload CSV/JSON files once—all questions and batches remain permanently stored across sessions and devices.</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Upload CSV/JSON files once—all questions and batches remain permanently stored across your phone and laptop.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button onclick="switchAdminSubtab('bulk')" id="subtab-btn-bulk" class="admin-subtab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 text-white shadow-xs transition">
-            <i class="fa-solid fa-file-import mr-1.5"></i>Bulk CSV / JSON Upload
+        <div class="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2">
+          <button onclick="switchAdminSubtab('bulk')" id="subtab-btn-bulk" class="admin-subtab min-h-[42px] px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold bg-emerald-600 text-white shadow-xs transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-file-import"></i><span>Bulk CSV/JSON</span>
           </button>
-          <button onclick="switchAdminSubtab('single')" id="subtab-btn-single" class="admin-subtab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-            <i class="fa-solid fa-plus-circle mr-1.5"></i>Single MCQ Form
+          <button onclick="switchAdminSubtab('single')" id="subtab-btn-single" class="admin-subtab min-h-[42px] px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-plus-circle"></i><span>Single MCQ</span>
           </button>
-          <button onclick="switchAdminSubtab('manage')" id="subtab-btn-manage" class="admin-subtab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-            <i class="fa-solid fa-database mr-1.5"></i>Saved Bank & Sets (<span id="admin-tab-count">0</span>)
+          <button onclick="switchAdminSubtab('manage')" id="subtab-btn-manage" class="admin-subtab min-h-[42px] px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-database"></i><span>Bank (<span id="admin-tab-count">0</span>)</span>
           </button>
         </div>
       </div>
 
       <!-- SUB-VIEW 3A: SINGLE QUESTION UPLOAD FORM -->
-      <div id="admin-panel-single" class="hidden bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
-        <h2 class="text-lg font-bold text-slate-900 mb-1">Add New TPSC Multiple Choice Question</h2>
-        <p class="text-xs text-slate-500 mb-6">All added questions are immediately synced to your persistent cloud bank and ready for Practice & Mock Tests.</p>
+      <div id="admin-panel-single" class="hidden bg-white rounded-2xl border border-slate-200 p-4 sm:p-8 shadow-xs">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-1">Add New TPSC Multiple Choice Question</h2>
+        <p class="text-xs text-slate-500 mb-5 sm:mb-6">All added questions are immediately synced to your persistent cloud bank and ready for Practice & Mock Tests.</p>
 
-        <form id="single-question-form" onsubmit="handleSingleQuestionSubmit(event)" class="space-y-5">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <form id="single-question-form" onsubmit="handleSingleQuestionSubmit(event)" class="space-y-4 sm:space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Category / Subject *</label>
-              <select id="inp-category" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
+              <select id="inp-category" required class="w-full min-h-[44px] rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
                 <option value="Tripura GK">Tripura GK</option>
                 <option value="Current Affairs">Current Affairs</option>
                 <option value="Indian Polity & Constitution">Indian Polity & Constitution</option>
@@ -655,11 +778,11 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Batch / Set Label</label>
-              <input type="text" id="inp-batch-name" placeholder="e.g., TPSC 2026 Current Affairs" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none" />
+              <input type="text" id="inp-batch-name" placeholder="e.g., TPSC 2026 Current Affairs" class="w-full min-h-[44px] rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none" />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Correct Option *</label>
-              <select id="inp-correct" required class="w-full rounded-xl border border-slate-300 bg-emerald-50/50 px-3.5 py-2.5 text-sm font-bold text-emerald-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
+              <select id="inp-correct" required class="w-full min-h-[44px] rounded-xl border border-slate-300 bg-emerald-50/50 px-3.5 py-2.5 text-sm font-bold text-emerald-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
                 <option value="0">Option A</option>
                 <option value="1">Option B</option>
                 <option value="2">Option C</option>
@@ -673,33 +796,33 @@
             <textarea id="inp-question" rows="3" required placeholder="e.g., Who among the following Manikya kings built the Neermahal water palace in Rudrasagar Lake?" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none"></textarea>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Option A *</label>
               <div class="flex items-center">
-                <span class="px-3 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">A</span>
-                <input type="text" id="inp-opt-a" required placeholder="Enter Option A" class="w-full rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
+                <span class="min-h-[44px] flex items-center px-3.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">A</span>
+                <input type="text" id="inp-opt-a" required placeholder="Enter Option A" class="w-full min-h-[44px] rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
               </div>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Option B *</label>
               <div class="flex items-center">
-                <span class="px-3 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">B</span>
-                <input type="text" id="inp-opt-b" required placeholder="Enter Option B" class="w-full rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
+                <span class="min-h-[44px] flex items-center px-3.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">B</span>
+                <input type="text" id="inp-opt-b" required placeholder="Enter Option B" class="w-full min-h-[44px] rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
               </div>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Option C *</label>
               <div class="flex items-center">
-                <span class="px-3 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">C</span>
-                <input type="text" id="inp-opt-c" required placeholder="Enter Option C" class="w-full rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
+                <span class="min-h-[44px] flex items-center px-3.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">C</span>
+                <input type="text" id="inp-opt-c" required placeholder="Enter Option C" class="w-full min-h-[44px] rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
               </div>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Option D *</label>
               <div class="flex items-center">
-                <span class="px-3 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">D</span>
-                <input type="text" id="inp-opt-d" required placeholder="Enter Option D" class="w-full rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
+                <span class="min-h-[44px] flex items-center px-3.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-l-xl border border-r-0 border-slate-300">D</span>
+                <input type="text" id="inp-opt-d" required placeholder="Enter Option D" class="w-full min-h-[44px] rounded-r-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm focus:bg-white focus:border-emerald-500 focus:outline-none" />
               </div>
             </div>
           </div>
@@ -710,33 +833,33 @@
           </div>
 
           <div class="flex items-center justify-end gap-3 pt-2">
-            <button type="reset" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-100 transition">
-              Reset Form
+            <button type="reset" class="min-h-[44px] px-4 sm:px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-100 transition">
+              Reset
             </button>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition flex items-center gap-2">
-              <i class="fa-solid fa-check"></i> Save Question to Bank
+            <button type="submit" class="min-h-[44px] px-5 sm:px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition flex items-center gap-2">
+              <i class="fa-solid fa-check"></i> Save Question
             </button>
           </div>
         </form>
       </div>
 
       <!-- SUB-VIEW 3B: BULK JSON / CSV UPLOAD & PREVIEW -->
-      <div id="admin-panel-bulk" class="space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div id="admin-panel-bulk" class="space-y-5 sm:space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-8 shadow-xs space-y-4 sm:space-y-5">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Permanent CSV / JSON Batch Importer</h2>
-              <p class="text-xs text-slate-500 mt-0.5">Upload a `.csv` or `.json` file once. We tag it as a named batch and store every question permanently in your database.</p>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Permanent CSV / JSON Batch Importer</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Upload a `.csv` or `.json` file once from phone or PC. Every question stays permanently saved in your database.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button onclick="loadSampleTemplate('csv')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
-                <i class="fa-solid fa-table mr-1 text-blue-600"></i> Load CSV Sample
+              <button onclick="loadSampleTemplate('csv')" class="min-h-[38px] px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+                <i class="fa-solid fa-table mr-1 text-blue-600"></i> CSV Sample
               </button>
-              <button onclick="loadSampleTemplate('json')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
-                <i class="fa-solid fa-code mr-1 text-emerald-600"></i> Load JSON Sample
+              <button onclick="loadSampleTemplate('json')" class="min-h-[38px] px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+                <i class="fa-solid fa-code mr-1 text-emerald-600"></i> JSON Sample
               </button>
-              <button onclick="downloadTemplateFile('csv')" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition">
-                <i class="fa-solid fa-download mr-1"></i> CSV Template
+              <button onclick="downloadTemplateFile('csv')" class="min-h-[38px] px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition">
+                <i class="fa-solid fa-download mr-1"></i> Template
               </button>
             </div>
           </div>
@@ -745,11 +868,11 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Set / Batch Name (For Easy Filtering Later)</label>
-              <input type="text" id="bulk-batch-name" placeholder="e.g., Tripura Current Affairs Nov 2026 Set 1" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none" />
+              <input type="text" id="bulk-batch-name" placeholder="e.g., Tripura Current Affairs Nov 2026 Set 1" class="w-full min-h-[44px] rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none" />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Default Category (If CSV omits category)</label>
-              <select id="bulk-default-category" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
+              <select id="bulk-default-category" class="w-full min-h-[44px] rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-emerald-500 focus:outline-none">
                 <option value="Tripura GK">Tripura GK</option>
                 <option value="Current Affairs">Current Affairs</option>
                 <option value="Indian Polity & Constitution">Indian Polity & Constitution</option>
@@ -760,48 +883,48 @@
             </div>
           </div>
 
-          <!-- Drag-and-Drop / File Selector -->
-          <div id="csv-drop-zone" class="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 hover:bg-emerald-50/40 p-5 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-400 transition">
+          <!-- Touch-Friendly File Picker / Drag-and-Drop Zone -->
+          <label id="csv-drop-zone" for="bulk-file-input" class="cursor-pointer flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4 bg-slate-50 hover:bg-emerald-50/40 active:bg-emerald-50 p-4 sm:p-5 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-400 transition">
             <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
               <i class="fa-solid fa-file-csv"></i>
             </div>
-            <div class="flex-1 text-center sm:text-left">
-              <p class="text-sm font-bold text-slate-800">Drag & Drop your .CSV or .JSON file here, or click Choose File</p>
-              <p class="text-xs text-slate-500 mt-0.5">CSV Columns: <code class="bg-slate-200 px-1 rounded">category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation</code></p>
+            <div class="flex-1 text-center sm:text-left min-w-0">
+              <p class="text-sm font-bold text-slate-800">Tap to Select .CSV or .JSON File from Phone / PC</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 break-words">Columns: <code class="bg-slate-200 px-1 rounded">category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation</code></p>
             </div>
-            <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shrink-0">
-              <i class="fa-solid fa-folder-open mr-1.5"></i> Choose File
-              <input type="file" id="bulk-file-input" accept=".json,.csv,.txt" onchange="handleBulkFileUpload(event)" class="hidden" />
-            </label>
-          </div>
+            <span class="min-h-[42px] flex items-center justify-center px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold shrink-0">
+              <i class="fa-solid fa-folder-open mr-1.5"></i> Browse File
+            </span>
+            <input type="file" id="bulk-file-input" accept=".json,.csv,.txt,text/csv,application/json" onchange="handleBulkFileUpload(event)" class="hidden" />
+          </label>
 
           <!-- Raw Paste Textarea -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Paste JSON Array or CSV Content</label>
-            <textarea id="bulk-raw-input" rows="7" placeholder='Paste JSON array or CSV rows here, or click "Load JSON Sample" / "Load CSV Sample" above...' class="w-full rounded-xl border border-slate-300 bg-slate-50 p-4 font-mono text-xs text-slate-800 focus:bg-white focus:border-emerald-500 focus:outline-none"></textarea>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Or Paste JSON / CSV Content</label>
+            <textarea id="bulk-raw-input" rows="5" placeholder='Paste JSON array or CSV rows here, or tap "CSV Sample" / "Browse File" above...' class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3.5 font-mono text-xs text-slate-800 focus:bg-white focus:border-emerald-500 focus:outline-none"></textarea>
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <button onclick="clearBulkArea()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800">
+            <button onclick="clearBulkArea()" class="min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800">
               Clear Input
             </button>
-            <button onclick="parseAndPreviewBulk()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-xs transition flex items-center gap-2">
-              <i class="fa-solid fa-eye text-emerald-400"></i> Parse & Preview Questions
+            <button onclick="parseAndPreviewBulk()" class="min-h-[44px] px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center gap-2">
+              <i class="fa-solid fa-eye text-emerald-400"></i> Parse & Preview
             </button>
           </div>
         </div>
 
         <!-- Bulk Preview Table Card -->
-        <div id="bulk-preview-card" class="hidden bg-white rounded-2xl border border-emerald-200 p-6 shadow-sm space-y-4">
+        <div id="bulk-preview-card" class="hidden bg-white rounded-2xl border border-emerald-200 p-4 sm:p-6 shadow-sm space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
                 <i class="fa-solid fa-circle-check text-emerald-600"></i>
                 <span>Ready to Import: <span id="bulk-preview-count" class="text-emerald-600">0</span> Valid Questions</span>
               </h3>
-              <p class="text-xs text-slate-500">Verify the parsed questions below before adding them to your permanent Question Bank.</p>
+              <p class="text-xs text-slate-500">Verify the parsed questions below before saving permanently.</p>
             </div>
-            <button onclick="commitBulkImport()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">
+            <button onclick="commitBulkImport()" class="min-h-[46px] px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">
               <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Confirm & Import All
             </button>
           </div>
@@ -812,27 +935,27 @@
       </div>
 
       <!-- SUB-VIEW 3C: MANAGE QUESTION BANK -->
-      <div id="admin-panel-manage" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
+      <div id="admin-panel-manage" class="hidden bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <h2 class="text-lg font-bold text-slate-900">Saved Question Sets & Permanent Bank</h2>
-            <p class="text-xs text-slate-500">All questions below are permanently saved in cloud storage. Practice a specific batch, export backups, or manage items.</p>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Saved Question Sets & Permanent Bank</h2>
+            <p class="text-xs text-slate-500">All questions below are permanently saved in cloud storage.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="seedStarterPackToCloud(true)" class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition">
-              <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Import 15 TPSC Starter Qs
+            <button onclick="seedStarterPackToCloud(true)" class="min-h-[38px] px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition">
+              <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> +15 Starter Qs
             </button>
-            <button onclick="exportQuestionBank('csv')" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+            <button onclick="exportQuestionBank('csv')" class="min-h-[38px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
               <i class="fa-solid fa-file-csv mr-1 text-blue-600"></i> Export CSV
             </button>
-            <button onclick="exportQuestionBank('json')" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+            <button onclick="exportQuestionBank('json')" class="min-h-[38px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
               <i class="fa-solid fa-file-export mr-1 text-emerald-600"></i> Export JSON
             </button>
           </div>
         </div>
 
         <!-- Saved Batches / Uploaded CSV Sets Overview -->
-        <div class="bg-slate-50 rounded-xl border border-slate-200/80 p-4 space-y-3">
+        <div class="bg-slate-50 rounded-xl border border-slate-200/80 p-3.5 sm:p-4 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
               <i class="fa-solid fa-folder-tree text-emerald-600 mr-1.5"></i>Saved Uploaded Batches / Sets
@@ -847,16 +970,16 @@
         <!-- Search, Batch & Category Filter -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div class="md:col-span-2 relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-            <input type="text" id="bank-search-input" oninput="renderQuestionBankList()" placeholder="Search by keyword, topic, or option..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 text-sm focus:border-emerald-500 focus:outline-none" />
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+            <input type="text" id="bank-search-input" oninput="renderQuestionBankList()" placeholder="Search by keyword, topic, or option..." class="w-full min-h-[44px] pl-10 pr-4 py-2 rounded-xl border border-slate-300 text-sm focus:border-emerald-500 focus:outline-none" />
           </div>
           <div>
-            <select id="bank-filter-batch" onchange="renderQuestionBankList()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:outline-none">
+            <select id="bank-filter-batch" onchange="renderQuestionBankList()" class="w-full min-h-[44px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:outline-none">
               <option value="ALL">All Saved Sets / Batches</option>
             </select>
           </div>
           <div>
-            <select id="bank-filter-category" onchange="renderQuestionBankList()" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:outline-none">
+            <select id="bank-filter-category" onchange="renderQuestionBankList()" class="w-full min-h-[44px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:outline-none">
               <option value="ALL">All Categories</option>
               <option value="Tripura GK">Tripura GK</option>
               <option value="Current Affairs">Current Affairs</option>
@@ -877,8 +1000,8 @@
 
   </main>
 
-  <!-- Subtle Academic Footer -->
-  <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+  <!-- Subtle Academic Footer (Hidden on small mobile to avoid crowding bottom nav) -->
+  <footer class="hidden md:block bg-white border-t border-slate-200 mt-auto py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
       <p><strong class="text-slate-700">TPSC ExamPrep Portal</strong> • Tailored for Tripura Civil Service (TCS), TPS & TPSC Combined Competitive Examinations</p>
       <p>Marking Scheme: <span class="text-emerald-600 font-semibold">+1.00 Correct</span> | <span class="text-rose-600 font-semibold">-0.25 Negative</span></p>
@@ -889,490 +1012,62 @@
   <!-- FIREBASE & APPLICATION LOGIC                                          -->
   <!-- ===================================================================== -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import {
-      getAuth,
-      signInAnonymously,
-      signInWithCustomToken,
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      EmailAuthProvider,
-      linkWithCredential,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      deleteDoc,
-      onSnapshot,
-      collection,
-      writeBatch
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+// ... existing code ... -->
     /**
-     * Firebase Environment Setup
-     */
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'tpsc-examprep-default';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-
-    let app = null;
-    let auth = null;
-    let db = null;
-    let currentUser = null;
-    let unsubQuestions = null;
-    let unsubHistory = null;
-    let isCloudReady = false;
-    let hasAttemptedInitialSeed = false;
-
-    /**
-     * 15 Authentic TPSC-Level Starter Questions
-     */
-    const DEFAULT_QUESTIONS = [
-      {
-        id: 'tpsc-starter-001',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which Manikya ruler of Tripura constructed the iconic Neermahal (Water Palace) in the middle of Rudrasagar Lake?',
-        options: [
-          'Maharaja Radha Kishore Manikya',
-          'Maharaja Bir Bikram Kishore Manikya',
-          'Maharaja Birendra Kishore Manikya',
-          'Maharaja Dhanya Manikya'
-        ],
-        correctIndex: 1,
-        explanation: 'Neermahal ("Water Palace") was built by Maharaja Bir Bikram Kishore Manikya Debbarma in 1930 as his summer residence in Melaghar, situated in the middle of Rudrasagar Lake, blending Hindu and Mughal architectural styles.'
-      },
-      {
-        id: 'tpsc-starter-002',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which is the highest mountain peak in Tripura, located in the Jampui Hills range?',
-        options: [
-          'Betlingchhip (Betalongchhip)',
-          'Sakan Peak',
-          'Jarimura Peak',
-          'Deotamura Peak'
-        ],
-        correctIndex: 0,
-        explanation: 'Betlingchhip (also known as Betalongchhip or Thaidawr), standing at an elevation of approximately 939 meters (3,081 ft) in the Jampui Hills of North Tripura district, is the highest peak in Tripura.'
-      },
-      {
-        id: 'tpsc-starter-003',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'The rock-cut bas-relief sculptures of Unakoti, often referred to as the "Angkor Wat of the North-East", are primarily dedicated to which deity?',
-        options: [
-          'Lord Vishnu',
-          'Lord Shiva',
-          'Goddess Tripurasundari',
-          'Lord Surya'
-        ],
-        correctIndex: 1,
-        explanation: 'Unakoti (meaning "one less than a crore") in Unakoti district is an ancient Shaivite pilgrimage site dating back to the 7th–9th centuries, famous for its colossal rock-cut carvings of Lord Shiva (Unakotishwara Kal Bhairava).'
-      },
-      {
-        id: 'tpsc-starter-004',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Dambur Lake, the largest water body in Tripura and source of the Gumti River, is formed at the confluence of which two rivers?',
-        options: [
-          'Haora and Manu',
-          'Raima and Sarma',
-          'Khowai and Dhalai',
-          'Muhuri and Feni'
-        ],
-        correctIndex: 1,
-        explanation: 'Dambur Lake (located in Dhalai district) is formed at the confluence of the Raima and Sarma rivers, which merge to give rise to the Gumti River—the largest river of Tripura.'
-      },
-      {
-        id: 'tpsc-starter-005',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'In which year was Kokborok officially recognized as one of the state languages of Tripura?',
-        options: [
-          '1972',
-          '1975',
-          '1979',
-          '1982'
-        ],
-        correctIndex: 2,
-        explanation: 'Kokborok was officially recognized as a state language of Tripura on January 19, 1979. Every year, January 19 is celebrated across the state as Kokborok Day.'
-      },
-      {
-        id: 'tpsc-starter-006',
-        category: 'Geography & Environment',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'With which neighboring country does Tripura share an international border of approximately 856 km, surrounding the state on three sides?',
-        options: [
-          'Myanmar',
-          'Bangladesh',
-          'Bhutan',
-          'Nepal'
-        ],
-        correctIndex: 1,
-        explanation: 'Tripura shares an 856 km long international boundary with Bangladesh on its north, west, and south sides—accounting for nearly 84% of its total perimeter.'
-      },
-      {
-        id: 'tpsc-starter-007',
-        category: 'Indian History & Freedom Struggle',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Who was the Chief Commissioner of Tripura when the princely state formally merged with the Indian Union on October 15, 1949?',
-        options: [
-          'Ranjit Kumar Roy',
-          'B. K. Nehru',
-          'Sachindra Lal Singh',
-          'Maharani Kanchan Prava Devi'
-        ],
-        correctIndex: 0,
-        explanation: 'Following the Tripura Merger Agreement signed by Regent Maharani Kanchan Prava Devi on September 9, 1949, Tripura officially merged with India on October 15, 1949, with Ranjit Kumar Roy taking charge as the first Chief Commissioner.'
-      },
-      {
-        id: 'tpsc-starter-008',
-        category: 'Current Affairs',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which traditional attire of the indigenous Tripuri community was awarded the Geographical Indication (GI) tag by the Government of India?',
-        options: [
-          'Rignai Pachra',
-          'Risa',
-          'Mekhela Chador',
-          'Phanek'
-        ],
-        correctIndex: 1,
-        explanation: 'The "Risa", a traditional handwoven cloth used by Tripura’s indigenous communities as a headgear, stole, or upper garment, received the prestigious Geographical Indication (GI) tag, boosting handloom artisans.'
-      },
-      {
-        id: 'tpsc-starter-009',
-        category: 'Current Affairs',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'The Maitri Setu (Friendship Bridge), connecting Sabroom in South Tripura with Ramgarh in Bangladesh, is constructed over which river?',
-        options: [
-          'Gumti River',
-          'Feni River',
-          'Muhuri River',
-          'Manu River'
-        ],
-        correctIndex: 1,
-        explanation: 'Maitri Setu is a 1.9 km bridge built over the Feni River, linking Sabroom (Tripura) with Ramgarh (Bangladesh) and providing Tripura direct access to the Chittagong Port.'
-      },
-      {
-        id: 'tpsc-starter-010',
-        category: 'Tripura GK',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which festival of Tripura, dedicated to the worship of 14 deities (Chaturdasha Devata), is celebrated annually in Old Agartala (Khayerpur)?',
-        options: [
-          'Garia Puja',
-          'Kharchi Puja',
-          'Ker Puja',
-          'Pilak Festival'
-        ],
-        correctIndex: 1,
-        explanation: 'Kharchi Puja is a major week-long traditional festival held at the Chaturdasha Devata Temple in Old Agartala, where 14 deities representing the ancestral gods of the Tripuri people are worshipped.'
-      },
-      {
-        id: 'tpsc-starter-011',
-        category: 'Indian Polity & Constitution',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'The Tripura Tribal Areas Autonomous District Council (TTAADC) currently functions under which Schedule of the Constitution of India?',
-        options: [
-          'Fifth Schedule',
-          'Sixth Schedule',
-          'Seventh Schedule',
-          'Eighth Schedule'
-        ],
-        correctIndex: 1,
-        explanation: 'Initially constituted under the Seventh Schedule in 1982, TTAADC was brought under the Sixth Schedule of the Indian Constitution via the 49th Constitutional Amendment Act, effective from April 1, 1985.'
-      },
-      {
-        id: 'tpsc-starter-012',
-        category: 'Indian Polity & Constitution',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Under which Act did Tripura attain full-fledged Statehood on January 21, 1972?',
-        options: [
-          'States Reorganisation Act, 1956',
-          'North-Eastern Areas (Reorganisation) Act, 1971',
-          'Government of Union Territories Act, 1963',
-          'Assam Reorganisation Act, 1969'
-        ],
-        correctIndex: 1,
-        explanation: 'Under the North-Eastern Areas (Reorganisation) Act, 1971, Tripura (along with Manipur and Meghalaya) became a full-fledged state of India on January 21, 1972.'
-      },
-      {
-        id: 'tpsc-starter-013',
-        category: 'Indian Polity & Constitution',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which Article of the Indian Constitution empowers the Election Commission of India to superintend, direct, and control elections to Parliament and State Legislatures?',
-        options: [
-          'Article 280',
-          'Article 315',
-          'Article 324',
-          'Article 356'
-        ],
-        correctIndex: 2,
-        explanation: 'Article 324 of the Constitution vests the superintendence, direction, and control of the preparation of electoral rolls and the conduct of elections in the Election Commission of India.'
-      },
-      {
-        id: 'tpsc-starter-014',
-        category: 'Current Affairs',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'India’s first solar observatory mission launched by ISRO to study the Sun from Lagrange Point 1 is named:',
-        options: [
-          'Surya-L1',
-          'Aditya-L1',
-          'Bhaskara-L1',
-          'Arka-1'
-        ],
-        correctIndex: 1,
-        explanation: 'Aditya-L1 is India’s first space-based solar observatory mission developed by ISRO, placed in a halo orbit around the Sun-Earth Lagrange point 1 (L1) located about 1.5 million km from Earth.'
-      },
-      {
-        id: 'tpsc-starter-015',
-        category: 'General Science & Economy',
-        batchName: 'TPSC Starter Pack (15 Qs)',
-        question: 'Which gas is predominantly responsible for the characteristic pungent smell near public urinals due to bacterial decomposition of urea?',
-        options: [
-          'Sulfur Dioxide',
-          'Ammonia',
-          'Methane',
-          'Nitrous Oxide'
-        ],
-        correctIndex: 1,
-        explanation: 'Urea present in urine is broken down by the enzyme urease produced by bacteria into Ammonia (NH3) and carbon dioxide, giving rise to the sharp, pungent odor.'
-      }
-    ];
-
-    /**
-     * Application State
-     */
-    let questionBank = [];
-    let testHistory = [];
-    let bulkPreviewBuffer = [];
-
-    // Active Practice / Mock Test Session State
-    let session = {
-      active: false,
-      mode: 'mock', // 'practice' | 'mock'
-      category: 'ALL',
-      batchName: 'ALL',
-      negativeMarking: true,
-      questions: [],
-      currentIndex: 0,
-      answers: {},       // { [qIndex]: optionIndex (0..3) }
-      reviewStatus: {},  // { [qIndex]: boolean }
-      visited: {},       // { [qIndex]: boolean }
-      timerSeconds: 0,
-      initialSeconds: 0,
-      timerInterval: null,
-      completedResult: null
-    };
-
-    /**
-     * Normalize Legacy Category Names to Standard 6 TPSC Syllabus Categories
-     */
-    function normalizeCategoryName(rawCat) {
-      if (!rawCat) return 'Tripura GK';
-      const c = String(rawCat).trim();
-      const lower = c.toLowerCase();
-      if (lower.includes('tripura') && (lower.includes('current') || lower.includes('affair'))) return 'Current Affairs';
-      if (lower.includes('tripura')) return 'Tripura GK';
-      if (lower.includes('current') || lower.includes('affair')) return 'Current Affairs';
-      if (lower.includes('polity') || lower.includes('constitution')) return 'Indian Polity & Constitution';
-      if (lower.includes('history') || lower.includes('freedom')) return 'Indian History & Freedom Struggle';
-      if (lower.includes('geo') || lower.includes('environ')) return 'Geography & Environment';
-      if (lower.includes('science') || lower.includes('econ')) return 'General Science & Economy';
-      return c;
-    }
-
-    /**
-     * Update Top Navbar Cloud Sync Status UI
+     * Update Top Navbar Cloud Sync Status UI (Desktop & Mobile)
      */
     function updateCloudSyncUI(status, text) {
       const dot = document.getElementById('cloud-sync-dot');
       const label = document.getElementById('cloud-sync-text');
-      const mobIcon = document.getElementById('mobile-sync-icon');
+      const mobDot = document.getElementById('mobile-cloud-dot');
       const mobCount = document.getElementById('mobile-q-count');
+      const mobNavBadge = document.getElementById('mob-nav-bank-badge');
+
+      if (mobNavBadge) {
+        mobNavBadge.textContent = questionBank.length;
+      }
 
       if (status === 'synced') {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-        label.textContent = text || `Cloud Synced • ${questionBank.length} Questions Saved`;
-        mobIcon.className = 'fa-solid fa-cloud-check text-emerald-400 text-xs';
-        mobCount.textContent = `${questionBank.length} Synced`;
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        if (label) label.textContent = text || `Cloud Synced • ${questionBank.length} Questions Saved`;
+        if (mobDot) mobDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
+        if (mobCount) mobCount.textContent = `${questionBank.length} Synced`;
       } else if (status === 'syncing') {
-        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        label.textContent = text || 'Syncing with Cloud...';
-        mobIcon.className = 'fa-solid fa-arrows-rotate fa-spin text-amber-400 text-xs';
-        mobCount.textContent = 'Syncing...';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        if (label) label.textContent = text || 'Syncing with Cloud...';
+        if (mobDot) mobDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0';
+        if (mobCount) mobCount.textContent = 'Syncing...';
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-rose-400';
-        label.textContent = text || 'Offline / Local Session';
-        mobIcon.className = 'fa-solid fa-cloud-slash text-rose-400 text-xs';
-        mobCount.textContent = `${questionBank.length} Qs`;
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-400';
+        if (label) label.textContent = text || 'Offline / Local Session';
+        if (mobDot) mobDot.className = 'w-2 h-2 rounded-full bg-rose-400 shrink-0';
+        if (mobCount) mobCount.textContent = `${questionBank.length} Qs`;
       }
     }
 
     /**
      * Initialize Firebase Auth & Real-Time Firestore Listeners
      */
-    async function initCloudStorage() {
-      setupCsvDragAndDrop();
-
-      if (!firebaseConfig) {
-        questionBank = [...DEFAULT_QUESTIONS];
-        updateCloudSyncUI('offline', `In-Memory Mode • ${questionBank.length} Qs`);
-        onBankOrHistoryUpdated();
-        return;
-      }
-
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        // Authenticate FIRST before attaching Firestore listeners (Rule 3)
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
-
-        onAuthStateChanged(auth, (user) => {
-          currentUser = user;
-          updateAccountModalUI();
-          if (user) {
-            attachFirestoreListeners(user.uid);
-          } else {
-            detachFirestoreListeners();
-            questionBank = [];
-            testHistory = [];
-            updateCloudSyncUI('offline', 'Signed Out');
-            onBankOrHistoryUpdated();
-          }
-        });
-      } catch (err) {
-        console.error('Firebase initialization error:', err);
-        questionBank = [...DEFAULT_QUESTIONS];
-        updateCloudSyncUI('offline', `Fallback Mode • ${questionBank.length} Qs`);
-        onBankOrHistoryUpdated();
-      }
-    }
-
-    function detachFirestoreListeners() {
-      if (unsubQuestions) { unsubQuestions(); unsubQuestions = null; }
-      if (unsubHistory) { unsubHistory(); unsubHistory = null; }
-    }
-
-    /**
-     * Real-Time Firestore Subscription to User's Persistent Question Bank & History
-     */
-    function attachFirestoreListeners(uid) {
-      detachFirestoreListeners();
-      updateCloudSyncUI('syncing', 'Loading Saved Questions...');
-
-      // Strict Rule 1 Path: /artifacts/{appId}/users/{userId}/questions
-      const qColRef = collection(db, 'artifacts', appId, 'users', uid, 'questions');
-      unsubQuestions = onSnapshot(
-        qColRef,
-        async (snapshot) => {
-          isCloudReady = true;
-          const items = [];
-          snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            items.push({
-              ...data,
-              id: docSnap.id,
-              category: normalizeCategoryName(data.category),
-              batchName: data.batchName || 'General Saved Questions'
-            });
-          });
-
-          // Sort newest first in JS memory (Rule 2: No complex Firestore orderBy)
-          items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-          // Automatically seed the 15 starter questions if the user's cloud bank is empty on first load
-          if (items.length === 0 && !hasAttemptedInitialSeed) {
-            hasAttemptedInitialSeed = true;
-            await seedStarterPackToCloud(false);
-            return;
-          }
-
-          questionBank = items;
-          updateCloudSyncUI('synced', `Cloud Synced • ${questionBank.length} Questions Saved`);
-          onBankOrHistoryUpdated();
-        },
-        (error) => {
-          console.error('Firestore questions listener error:', error);
-          showToast('Cloud sync error while reading questions.', 'error');
-          updateCloudSyncUI('offline', 'Sync Error');
-        }
-      );
-
-      // Strict Rule 1 Path: /artifacts/{appId}/users/{userId}/mock_history
-      const hColRef = collection(db, 'artifacts', appId, 'users', uid, 'mock_history');
-      unsubHistory = onSnapshot(
-        hColRef,
-        (snapshot) => {
-          const hist = [];
-          snapshot.forEach((docSnap) => {
-            hist.push({ ...docSnap.data(), id: docSnap.id });
-          });
-          hist.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-          testHistory = hist;
-          refreshDashboard();
-        },
-        (error) => {
-          console.error('Firestore history listener error:', error);
-        }
-      );
-    }
-
+// ... existing code ... -->
     function onBankOrHistoryUpdated() {
       updateAdminCounts();
       populateBatchDropdowns();
       refreshDashboard();
       renderQuestionBankList();
+      const mobNavBadge = document.getElementById('mob-nav-bank-badge');
+      if (mobNavBadge) mobNavBadge.textContent = questionBank.length;
     }
 
     /**
      * Seed or Import the 15 Authentic TPSC Starter Questions into Cloud Firestore
      */
-    async function seedStarterPackToCloud(showNotification = true) {
-      if (!currentUser || !db) {
-        questionBank = [...DEFAULT_QUESTIONS, ...questionBank];
-        onBankOrHistoryUpdated();
-        return;
-      }
-
-      try {
-        updateCloudSyncUI('syncing', 'Saving Starter Pack...');
-        const batch = writeBatch(db);
-        const now = Date.now();
-
-        DEFAULT_QUESTIONS.forEach((q, idx) => {
-          const docId = showNotification ? `starter-${now}-${idx}` : q.id;
-          const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', docId);
-          batch.set(docRef, {
-            ...q,
-            id: docId,
-            createdAt: now - idx
-          });
-        });
-
-        await batch.commit();
-        if (showNotification) {
-          showToast('Imported 15 TPSC Starter Questions into your Cloud Bank!', 'success');
-        }
-      } catch (err) {
-        console.error('Error seeding starter questions:', err);
-        showToast('Could not import starter questions to cloud.', 'error');
-      }
-    }
-
+// ... existing code ... -->
     /**
      * Account Modal & Multi-Device Email Sign-In / Account Linking
      */
     function updateAccountModalUI() {
       const btnLabel = document.getElementById('auth-btn-label');
+      const mobAuthLabel = document.getElementById('mob-auth-label');
       const uidEl = document.getElementById('modal-user-uid');
       const emailRow = document.getElementById('modal-user-email-row');
       const emailEl = document.getElementById('modal-user-email');
@@ -1380,7 +1075,8 @@
       const signedInActions = document.getElementById('account-signedin-actions');
 
       if (!currentUser) {
-        btnLabel.textContent = 'Sign In';
+        if (btnLabel) btnLabel.textContent = 'Sign In';
+        if (mobAuthLabel) mobAuthLabel.textContent = 'Sign In';
         uidEl.textContent = 'Not signed in';
         emailRow.classList.add('hidden');
         authForms.classList.remove('hidden');
@@ -1390,12 +1086,15 @@
 
       uidEl.textContent = currentUser.uid;
       if (currentUser.isAnonymous || !currentUser.email) {
-        btnLabel.textContent = 'Guest Vault';
+        if (btnLabel) btnLabel.textContent = 'Guest Vault';
+        if (mobAuthLabel) mobAuthLabel.textContent = 'Cloud Sync';
         emailRow.classList.add('hidden');
         authForms.classList.remove('hidden');
         signedInActions.classList.add('hidden');
       } else {
-        btnLabel.textContent = currentUser.email.split('@')[0];
+        const shortName = currentUser.email.split('@')[0];
+        if (btnLabel) btnLabel.textContent = shortName;
+        if (mobAuthLabel) mobAuthLabel.textContent = shortName;
         emailEl.textContent = currentUser.email;
         emailRow.classList.remove('hidden');
         authForms.classList.add('hidden');
@@ -1404,320 +1103,74 @@
     }
 
     function openAccountModal() {
-      updateAccountModalUI();
-      const modal = document.getElementById('account-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeAccountModal() {
-      const modal = document.getElementById('account-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    async function handleEmailLinkOrRegister() {
-      const email = document.getElementById('auth-email-input').value.trim();
-      const pass = document.getElementById('auth-pass-input').value;
-      if (!email || pass.length < 6) {
-        showToast('Enter a valid email and a password of at least 6 characters.', 'warning');
-        return;
-      }
-      try {
-        if (currentUser && currentUser.isAnonymous) {
-          const cred = EmailAuthProvider.credential(email, pass);
-          await linkWithCredential(currentUser, cred);
-          showToast('Your Guest Question Bank is now permanently linked to your email!', 'success');
-        } else {
-          await createUserWithEmailAndPassword(auth, email, pass);
-          showToast('Cloud account created! Your questions are synced.', 'success');
-        }
-        updateAccountModalUI();
-        closeAccountModal();
-      } catch (err) {
-        showToast(err.message || 'Could not link account.', 'error');
-      }
-    }
-
-    async function handleEmailSignIn() {
-      const email = document.getElementById('auth-email-input').value.trim();
-      const pass = document.getElementById('auth-pass-input').value;
-      if (!email || !pass) {
-        showToast('Please enter both email and password.', 'warning');
-        return;
-      }
-      try {
-        hasAttemptedInitialSeed = true;
-        await signInWithEmailAndPassword(auth, email, pass);
-        showToast('Signed in! Loading your saved Question Bank...', 'success');
-        closeAccountModal();
-      } catch (err) {
-        showToast(err.message || 'Sign-in failed.', 'error');
-      }
-    }
-
-    async function handleSignOutToGuest() {
-      try {
-        await signOut(auth);
-        hasAttemptedInitialSeed = true;
-        await signInAnonymously(auth);
-        showToast('Signed out to a fresh Guest session.', 'info');
-        closeAccountModal();
-      } catch (err) {
-        showToast('Error signing out.', 'error');
-      }
-    }
-
+// ... existing code ... -->
     /**
-     * Drag-and-Drop CSV/JSON Setup
-     */
-    function setupCsvDragAndDrop() {
-      const dropZone = document.getElementById('csv-drop-zone');
-      if (!dropZone) return;
-
-      ['dragenter', 'dragover'].forEach(evtName => {
-        dropZone.addEventListener(evtName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.add('border-emerald-500', 'bg-emerald-50/70');
-        });
-      });
-
-      ['dragleave', 'drop'].forEach(evtName => {
-        dropZone.addEventListener(evtName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.remove('border-emerald-500', 'bg-emerald-50/70');
-        });
-      });
-
-      dropZone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer?.files?.[0];
-        if (!file) return;
-        const batchInp = document.getElementById('bulk-batch-name');
-        if (batchInp && !batchInp.value.trim()) {
-          batchInp.value = file.name.replace(/\.[^/.]+$/, '');
-        }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          document.getElementById('bulk-raw-input').value = ev.target.result;
-          parseAndPreviewBulk();
-        };
-        reader.readAsText(file);
-      });
-    }
-
-    /**
-     * Populate Saved Batch / Set Dropdowns across Lobby & Bank Manager
-     */
-    function populateBatchDropdowns() {
-      const batchMap = {};
-      questionBank.forEach(q => {
-        const bName = q.batchName || 'General Saved Questions';
-        batchMap[bName] = (batchMap[bName] || 0) + 1;
-      });
-
-      const batchNames = Object.keys(batchMap);
-      const lobbyBatchSel = document.getElementById('lobby-batch-select');
-      const bankBatchSel = document.getElementById('bank-filter-batch');
-
-      if (lobbyBatchSel) {
-        const prevLobby = lobbyBatchSel.value;
-        lobbyBatchSel.innerHTML = `<option value="ALL">All Saved Sets (${questionBank.length} Qs)</option>`;
-        batchNames.forEach(name => {
-          const opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = `${name} (${batchMap[name]} Qs)`;
-          lobbyBatchSel.appendChild(opt);
-        });
-        if (batchNames.includes(prevLobby)) lobbyBatchSel.value = prevLobby;
-      }
-
-      if (bankBatchSel) {
-        const prevBank = bankBatchSel.value;
-        bankBatchSel.innerHTML = `<option value="ALL">All Saved Sets / Batches</option>`;
-        batchNames.forEach(name => {
-          const opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = `${name} (${batchMap[name]})`;
-          bankBatchSel.appendChild(opt);
-        });
-        if (batchNames.includes(prevBank)) bankBatchSel.value = prevBank;
-      }
-
-      renderSavedBatchesOverview(batchMap);
-    }
-
-    function renderSavedBatchesOverview(batchMap) {
-      const grid = document.getElementById('saved-batches-grid');
-      const countLabel = document.getElementById('saved-batches-count');
-      if (!grid || !countLabel) return;
-
-      const entries = Object.entries(batchMap);
-      countLabel.textContent = `${entries.length} Saved ${entries.length === 1 ? 'Set' : 'Sets'}`;
-
-      if (entries.length === 0) {
-        grid.innerHTML = `<p class="text-xs text-slate-500 col-span-full">No saved sets yet. Upload a CSV/JSON file above to create a permanent question set.</p>`;
-        return;
-      }
-
-      grid.innerHTML = '';
-      entries.forEach(([bName, count]) => {
-        const card = document.createElement('div');
-        card.className = 'bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-2xs';
-        card.innerHTML = `
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-slate-800 truncate" title="${escapeHTML(bName)}">${escapeHTML(bName)}</p>
-            <p class="text-[11px] text-emerald-700 font-semibold">${count} Questions Saved</p>
-          </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="practiceSpecificBatch('${escapeAttr(bName)}')" title="Practice This Set" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white text-[11px] font-bold transition">
-              Practice
-            </button>
-            <button onclick="confirmDeleteBatch('${escapeAttr(bName)}')" title="Delete Entire Set" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
-              <i class="fa-solid fa-trash-can text-xs"></i>
-            </button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function practiceSpecificBatch(batchName) {
-      document.getElementById('lobby-category-select').value = 'ALL';
-      document.getElementById('lobby-batch-select').value = batchName;
-      document.getElementById('lobby-count-select').value = 'ALL';
-      startSession('practice');
-    }
-
-    function confirmDeleteBatch(batchName) {
-      const toDelete = questionBank.filter(q => (q.batchName || 'General Saved Questions') === batchName);
-      openConfirmModal({
-        title: `Delete "${batchName}"?`,
-        message: `This will permanently delete all ${toDelete.length} questions in this uploaded batch from your cloud database.`,
-        confirmText: `Delete ${toDelete.length} Questions`,
-        isDanger: true,
-        onConfirm: async () => {
-          if (!currentUser || !db) return;
-          try {
-            updateCloudSyncUI('syncing', 'Deleting Batch...');
-            // Firestore writeBatch supports up to 500 ops per batch
-            for (let i = 0; i < toDelete.length; i += 450) {
-              const chunk = toDelete.slice(i, i + 450);
-              const batch = writeBatch(db);
-              chunk.forEach(item => {
-                const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', item.id);
-                batch.delete(ref);
-              });
-              await batch.commit();
-            }
-            showToast(`Deleted batch "${batchName}" (${toDelete.length} questions).`, 'info');
-          } catch (err) {
-            console.error('Batch delete error:', err);
-            showToast('Failed to delete batch from cloud.', 'error');
-          }
-        }
-      });
-    }
-
-    /**
-     * Toast Notification System
-     */
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const styles = {
-        success: 'bg-slate-900 text-white border-emerald-500',
-        error: 'bg-rose-950 text-white border-rose-500',
-        info: 'bg-slate-800 text-white border-blue-400',
-        warning: 'bg-amber-950 text-white border-amber-400'
-      };
-      const icons = {
-        success: 'fa-circle-check text-emerald-400',
-        error: 'fa-circle-xmark text-rose-400',
-        info: 'fa-circle-info text-blue-400',
-        warning: 'fa-triangle-exclamation text-amber-400'
-      };
-
-      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border-l-4 ${styles[type] || styles.success} text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0`;
-      toast.innerHTML = `
-        <i class="fa-solid ${icons[type] || icons.success} text-base shrink-0"></i>
-        <span class="flex-1">${escapeHTML(message)}</span>
-      `;
-      container.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      });
-
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3500);
-    }
-
-    /**
-     * Custom Modal Confirmation Dialog
-     */
-    function openConfirmModal({ title, message, confirmText = 'Confirm', isDanger = false, onConfirm }) {
-      const modal = document.getElementById('custom-modal');
-      const titleEl = document.getElementById('modal-title');
-      const msgEl = document.getElementById('modal-message');
-      const confirmBtn = document.getElementById('modal-confirm-btn');
-      const cancelBtn = document.getElementById('modal-cancel-btn');
-      const iconWrap = document.getElementById('modal-icon-wrapper');
-      const iconEl = document.getElementById('modal-icon');
-
-      titleEl.textContent = title;
-      msgEl.textContent = message;
-      confirmBtn.textContent = confirmText;
-
-      if (isDanger) {
-        confirmBtn.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition';
-        iconWrap.className = 'w-11 h-11 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-lg';
-        iconEl.className = 'fa-solid fa-triangle-exclamation';
-      } else {
-        confirmBtn.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition';
-        iconWrap.className = 'w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-lg';
-        iconEl.className = 'fa-solid fa-circle-question';
-      }
-
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-
-      const close = () => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      };
-
-      cancelBtn.onclick = close;
-      confirmBtn.onclick = () => {
-        close();
-        if (typeof onConfirm === 'function') onConfirm();
-      };
-    }
-
-    /**
-     * Primary View Tab Navigation
+     * Primary View Tab Navigation (Updates both Desktop Top Nav & Mobile Bottom Nav)
      */
     function switchTab(tabName) {
       const views = ['dashboard', 'arena', 'admin'];
       views.forEach(v => {
         const section = document.getElementById(`view-${v}`);
         const navBtn = document.getElementById(`nav-${v}`);
+        const mobBtn = document.getElementById(`mob-nav-${v}`);
         if (v === tabName) {
           section.classList.remove('hidden');
-          navBtn.className = 'nav-tab flex-1 md:flex-none flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-sm';
+          if (navBtn) {
+            navBtn.className = 'nav-tab flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-sm';
+          }
+          if (mobBtn) {
+            mobBtn.className = 'relative flex flex-col items-center justify-center gap-1 text-emerald-400 font-bold text-[11px] transition';
+          }
         } else {
           section.classList.add('hidden');
-          navBtn.className = 'nav-tab flex-1 md:flex-none flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60';
+          if (navBtn) {
+            navBtn.className = 'nav-tab flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60';
+          }
+          if (mobBtn) {
+            mobBtn.className = 'relative flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white font-semibold text-[11px] transition';
+          }
         }
       });
+
+      // Toggle between Mobile Bottom Nav and Mobile Exam Action Bar
+      syncMobileBottomBars();
 
       if (tabName === 'dashboard') {
         refreshDashboard();
       } else if (tabName === 'admin') {
         renderQuestionBankList();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * Manage Mobile Bottom Bar Visibility (Exam Action Bar vs. Main Bottom Nav)
+     */
+    function syncMobileBottomBars() {
+      const arenaVisible = !document.getElementById('view-arena').classList.contains('hidden');
+      const activeSessionVisible = !document.getElementById('arena-active-container').classList.contains('hidden');
+      const mainBottomNav = document.getElementById('mobile-bottom-nav');
+
+      if (arenaVisible && activeSessionVisible && session.active) {
+        if (mainBottomNav) mainBottomNav.classList.add('hidden');
+      } else {
+        if (mainBottomNav) mainBottomNav.classList.remove('hidden');
+      }
+    }
+
+    /**
+     * Toggle Slide-Over Bottom Sheet Question Palette on Mobile
+     */
+    function toggleMobilePaletteDrawer(open) {
+      const drawer = document.getElementById('mobile-palette-drawer');
+      if (!drawer) return;
+      if (open) {
+        renderQuestionPalette();
+        drawer.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else {
+        drawer.classList.add('hidden');
+        document.body.style.overflow = '';
       }
     }
 
@@ -1726,436 +1179,50 @@
      * DASHBOARD & TEST LOBBY FUNCTIONS
      * ===================================================================
      */
-    function refreshDashboard() {
-      document.getElementById('stat-total-questions').textContent = questionBank.length;
-      updateLobbyAvailableCount();
-
-      document.getElementById('stat-mocks-taken').textContent = testHistory.length;
-      if (testHistory.length > 0) {
-        const totalAcc = testHistory.reduce((acc, item) => acc + (item.accuracy || 0), 0);
-        const avgAcc = Math.round(totalAcc / testHistory.length);
-        document.getElementById('stat-avg-accuracy').textContent = `${avgAcc}%`;
-
-        const best = testHistory.reduce((max, item) => (item.netScore > max.netScore ? item : max), testHistory[0]);
-        document.getElementById('stat-best-score').textContent = `${Number(best.netScore).toFixed(2)} / ${best.totalQuestions}`;
-      } else {
-        document.getElementById('stat-avg-accuracy').textContent = '0%';
-        document.getElementById('stat-best-score').textContent = '--';
-      }
-
-      renderCategoryBreakdown();
-      renderRecentHistory();
-    }
-
-    function getFilteredLobbyPool() {
-      const cat = document.getElementById('lobby-category-select').value;
-      const batch = document.getElementById('lobby-batch-select').value;
-
-      return questionBank.filter(q => {
-        const matchCat = cat === 'ALL' || q.category === cat;
-        const matchBatch = batch === 'ALL' || (q.batchName || 'General Saved Questions') === batch;
-        return matchCat && matchBatch;
-      });
-    }
-
-    function updateLobbyAvailableCount() {
-      const filtered = getFilteredLobbyPool();
-      document.getElementById('lobby-available-badge').textContent = `${filtered.length} Questions Ready`;
-    }
-
-    function renderCategoryBreakdown() {
-      const categories = [
-        { name: 'Tripura GK', icon: 'fa-landmark' },
-        { name: 'Current Affairs', icon: 'fa-newspaper' },
-        { name: 'Indian Polity & Constitution', icon: 'fa-scale-balanced' },
-        { name: 'Indian History & Freedom Struggle', icon: 'fa-monument' },
-        { name: 'Geography & Environment', icon: 'fa-mountain-sun' },
-        { name: 'General Science & Economy', icon: 'fa-flask' }
-      ];
-
-      const grid = document.getElementById('category-breakdown-grid');
-      grid.innerHTML = '';
-
-      categories.forEach(cat => {
-        const count = questionBank.filter(q => q.category === cat.name).length;
-        const card = document.createElement('div');
-        card.className = 'group p-4 rounded-xl border border-slate-200 hover:border-emerald-400 bg-slate-50/60 hover:bg-emerald-50/40 transition cursor-pointer flex items-center justify-between gap-3';
-        card.onclick = () => {
-          if (count === 0) {
-            showToast(`No questions in "${cat.name}" yet. Add some in the Upload Portal!`, 'warning');
-            return;
-          }
-          document.getElementById('lobby-category-select').value = cat.name;
-          document.getElementById('lobby-batch-select').value = 'ALL';
-          document.getElementById('lobby-count-select').value = 'ALL';
-          startSession('practice');
-        };
-
-        card.innerHTML = `
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center shrink-0 transition">
-              <i class="fa-solid ${cat.icon}"></i>
-            </div>
-            <div class="truncate">
-              <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-emerald-800">${escapeHTML(cat.name)}</h3>
-              <p class="text-xs text-slate-500">${count} ${count === 1 ? 'Question' : 'Questions'}</p>
-            </div>
-          </div>
-          <span class="text-xs font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition shrink-0">
-            Practice <i class="fa-solid fa-arrow-right ml-0.5"></i>
-          </span>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function renderRecentHistory() {
-      const container = document.getElementById('recent-history-list');
-      const clearBtn = document.getElementById('clear-history-btn');
-
-      if (testHistory.length === 0) {
-        clearBtn.classList.add('hidden');
-        container.innerHTML = `
-          <div class="text-center py-10 px-4 border border-dashed border-slate-200 rounded-xl">
-            <i class="fa-solid fa-chart-line text-slate-300 text-3xl mb-2"></i>
-            <p class="text-sm font-semibold text-slate-600">No Mock Tests Attempted Yet</p>
-            <p class="text-xs text-slate-400 mt-1">Complete a timed Mock Test to save & track your TPSC Prelims score across devices.</p>
-          </div>
-        `;
-        return;
-      }
-
-      clearBtn.classList.remove('hidden');
-      container.innerHTML = '';
-
-      testHistory.slice().reverse().slice(0, 8).forEach(entry => {
-        const item = document.createElement('div');
-        item.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3';
-        item.innerHTML = `
-          <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-900 truncate">${escapeHTML(entry.categoryLabel)}</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">${entry.totalQuestions} Qs</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">
-              <span class="text-emerald-600 font-semibold">${entry.correct} Right</span> • 
-              <span class="text-rose-600 font-semibold">${entry.wrong} Wrong</span> • 
-              <span>${escapeHTML(entry.date)}</span>
-            </p>
-          </div>
-          <div class="text-right shrink-0">
-            <p class="text-sm font-extrabold text-emerald-700">${Number(entry.netScore).toFixed(2)} <span class="text-xs font-normal text-slate-400">/ ${entry.totalQuestions}</span></p>
-            <p class="text-[11px] font-semibold text-slate-500">${entry.accuracy}% Acc.</p>
-          </div>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function confirmClearHistory() {
-      openConfirmModal({
-        title: 'Clear Cloud Mock Test History?',
-        message: 'This will permanently delete all your synced mock test scorecards from your cloud account.',
-        confirmText: 'Clear History',
-        isDanger: true,
-        onConfirm: async () => {
-          if (!currentUser || !db) return;
-          try {
-            const batch = writeBatch(db);
-            testHistory.forEach(item => {
-              if (item.id) {
-                const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'mock_history', item.id);
-                batch.delete(ref);
-              }
-            });
-            await batch.commit();
-            showToast('Cloud mock test history cleared.', 'info');
-          } catch (err) {
-            showToast('Error clearing mock history.', 'error');
-          }
-        }
-      });
-    }
-
-    /**
-     * ===================================================================
-     * PRACTICE & MOCK TEST SESSION ENGINE
-     * ===================================================================
-     */
-    function quickLaunchDefault(mode) {
-      document.getElementById('lobby-category-select').value = 'ALL';
-      document.getElementById('lobby-batch-select').value = 'ALL';
-      document.getElementById('lobby-count-select').value = '15';
-      startSession(mode);
-    }
-
-    function startSession(mode) {
-      const selectedCat = document.getElementById('lobby-category-select').value;
-      const selectedBatch = document.getElementById('lobby-batch-select').value;
-      const countVal = document.getElementById('lobby-count-select').value;
-      const negativeMarking = document.getElementById('lobby-negative-toggle').checked;
-
-      let pool = getFilteredLobbyPool();
-
-      if (pool.length === 0) {
-        showToast('No questions match your selected category/batch. Please adjust filters or upload questions!', 'error');
-        return;
-      }
-
-      // Shuffle questions (Fisher-Yates)
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
-
-      if (countVal !== 'ALL') {
-        const limit = parseInt(countVal, 10);
-        pool = pool.slice(0, Math.min(limit, pool.length));
-      }
-
-      if (session.timerInterval) {
-        clearInterval(session.timerInterval);
-      }
-
-      const totalSeconds = pool.length * 60;
-
-      session = {
-        active: true,
-        mode: mode,
-        category: selectedCat,
-        batchName: selectedBatch,
-        negativeMarking: negativeMarking,
-        questions: pool,
-        currentIndex: 0,
-        answers: {},
-        reviewStatus: {},
-        visited: { 0: true },
-        timerSeconds: totalSeconds,
-        initialSeconds: totalSeconds,
-        timerInterval: null,
-        completedResult: null
-      };
-
+// ... existing code ... -->
       switchTab('arena');
       document.getElementById('arena-empty-state').classList.add('hidden');
       document.getElementById('arena-scorecard-container').classList.add('hidden');
       document.getElementById('arena-active-container').classList.remove('hidden');
+      syncMobileBottomBars();
 
       const badge = document.getElementById('arena-mode-badge');
-      const timerBox = document.getElementById('arena-timer-box');
-      const submitLabel = document.getElementById('arena-submit-label');
-      const titleEl = document.getElementById('arena-session-title');
-      const markingInfo = document.getElementById('arena-marking-info');
-
-      let labelParts = [];
-      if (selectedBatch !== 'ALL') labelParts.push(selectedBatch);
-      if (selectedCat !== 'ALL') labelParts.push(selectedCat);
-      titleEl.textContent = labelParts.length > 0 ? labelParts.join(' • ') : 'TPSC Combined GK & Current Affairs';
-
-      markingInfo.innerHTML = negativeMarking
-        ? 'Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-rose-600 font-semibold">-0.25</span> Wrong'
-        : 'Marking: <span class="text-emerald-600 font-semibold">+1.00</span> Correct | <span class="text-slate-600 font-semibold">0.00</span> No Negative Marking';
-
-      if (mode === 'practice') {
-        badge.textContent = 'PRACTICE MODE';
-        badge.className = 'px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider bg-blue-100 text-blue-800';
-        timerBox.classList.add('hidden');
-        submitLabel.textContent = 'End Practice & Summary';
-      } else {
-        badge.textContent = 'TIMED MOCK TEST';
-        badge.className = 'px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800';
-        timerBox.classList.remove('hidden');
-        submitLabel.textContent = 'Submit Mock Test';
-        startMockTimer();
-      }
-
-      renderActiveQuestion();
-      renderQuestionPalette();
-    }
-
-    function startMockTimer() {
-      updateTimerDisplay();
-      session.timerInterval = setInterval(() => {
-        session.timerSeconds--;
-        updateTimerDisplay();
-        if (session.timerSeconds <= 0) {
-          clearInterval(session.timerInterval);
-          showToast('Time is up! Auto-submitting your Mock Test...', 'warning');
-          finalizeAndShowScorecard();
-        }
-      }, 1000);
-    }
-
-    function updateTimerDisplay() {
-      const mins = Math.floor(Math.max(0, session.timerSeconds) / 60);
-      const secs = Math.max(0, session.timerSeconds) % 60;
-      const display = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      const timerEl = document.getElementById('arena-timer-display');
-      const timerBox = document.getElementById('arena-timer-box');
-      timerEl.textContent = display;
-
-      if (session.timerSeconds <= 60) {
-        timerBox.classList.remove('bg-slate-900');
-        timerBox.classList.add('bg-rose-600', 'animate-pulse');
-      } else {
-        timerBox.classList.add('bg-slate-900');
-        timerBox.classList.remove('bg-rose-600', 'animate-pulse');
-      }
-    }
-
+// ... existing code ... -->
     function renderActiveQuestion() {
       const idx = session.currentIndex;
       const q = session.questions[idx];
       session.visited[idx] = true;
 
       document.getElementById('q-number-badge').textContent = `Question ${idx + 1} of ${session.questions.length}`;
+      const mobCounter = document.getElementById('mobile-arena-q-counter');
+      if (mobCounter) mobCounter.textContent = `Q ${idx + 1} / ${session.questions.length}`;
       document.getElementById('q-category-tag').textContent = q.category;
       document.getElementById('q-text').textContent = q.question;
-
-      const statusPill = document.getElementById('q-status-pill');
-      const hasAnswered = session.answers[idx] !== undefined;
-      const isMarked = !!session.reviewStatus[idx];
-
-      if (isMarked && hasAnswered) {
-        statusPill.textContent = 'Answered & Marked for Review';
-        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 font-semibold';
-      } else if (isMarked) {
-        statusPill.textContent = 'Marked for Review';
-        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold';
-      } else if (hasAnswered) {
-        statusPill.textContent = 'Answered';
-        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold';
-      } else {
-        statusPill.textContent = 'Not Answered';
-        statusPill.className = 'px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold';
-      }
-
-      const optionsContainer = document.getElementById('q-options-container');
-      optionsContainer.innerHTML = '';
-      const letters = ['A', 'B', 'C', 'D'];
-      const userSelection = session.answers[idx];
-
-      q.options.forEach((optText, optIdx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-
-        let cardStyle = 'border-slate-200 bg-white hover:border-emerald-400 hover:bg-slate-50 text-slate-800';
-        let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-300';
-        let rightIcon = '';
-
-        if (session.mode === 'practice' && userSelection !== undefined) {
-          if (optIdx === q.correctIndex) {
-            cardStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-500/20';
-            badgeStyle = 'bg-emerald-600 text-white border-emerald-600';
-            rightIcon = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg ml-auto"></i>';
-          } else if (optIdx === userSelection && userSelection !== q.correctIndex) {
-            cardStyle = 'border-rose-500 bg-rose-50 text-rose-950 ring-2 ring-rose-500/20';
-            badgeStyle = 'bg-rose-600 text-white border-rose-600';
-            rightIcon = '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg ml-auto"></i>';
-          } else {
-            cardStyle = 'border-slate-200 bg-slate-50/50 text-slate-500 opacity-75';
-          }
-        } else if (userSelection === optIdx) {
-          cardStyle = 'border-emerald-600 bg-emerald-50/70 text-emerald-950 ring-2 ring-emerald-600/20';
-          badgeStyle = 'bg-emerald-600 text-white border-emerald-600';
-          rightIcon = '<i class="fa-solid fa-circle-dot text-emerald-600 text-base ml-auto"></i>';
-        }
-
-        btn.className = `option-card w-full text-left p-4 rounded-xl border-2 flex items-center gap-3.5 ${cardStyle}`;
+// ... existing code ... -->
+        btn.className = `option-card min-h-[54px] w-full text-left p-3.5 sm:p-4 rounded-xl border-2 flex items-center gap-3 sm:gap-3.5 ${cardStyle}`;
         btn.onclick = () => selectOption(optIdx);
         btn.innerHTML = `
           <span class="w-8 h-8 rounded-lg border font-bold text-xs flex items-center justify-center shrink-0 ${badgeStyle}">
             ${letters[optIdx]}
           </span>
-          <span class="text-sm sm:text-base font-medium leading-snug">${escapeHTML(optText)}</span>
+          <span class="text-sm sm:text-base font-medium leading-snug flex-1">${escapeHTML(optText)}</span>
           ${rightIcon}
         `;
         optionsContainer.appendChild(btn);
       });
-
-      const expBox = document.getElementById('practice-explanation-box');
-      const expHeader = document.getElementById('practice-feedback-header');
-      const expText = document.getElementById('practice-explanation-text');
-      const negPenalty = session.negativeMarking ? '-0.25 Mark' : '0.00 Mark';
-
-      if (session.mode === 'practice' && userSelection !== undefined) {
-        expBox.classList.remove('hidden');
-        const isRight = userSelection === q.correctIndex;
-        if (isRight) {
-          expBox.className = 'rounded-2xl border border-emerald-200 bg-emerald-50/80 p-5 space-y-2';
-          expHeader.className = 'flex items-center gap-2 font-bold text-sm text-emerald-800';
-          expHeader.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> <span>Correct Answer! (+1.00 Mark)</span>`;
-        } else {
-          expBox.className = 'rounded-2xl border border-rose-200 bg-rose-50/80 p-5 space-y-2';
-          expHeader.className = 'flex items-center gap-2 font-bold text-sm text-rose-800';
-          expHeader.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> <span>Incorrect! Correct Option is ${letters[q.correctIndex]} (${negPenalty})</span>`;
-        }
-        expText.textContent = q.explanation;
-      } else {
-        expBox.classList.add('hidden');
-      }
-
+// ... existing code ... -->
       document.getElementById('btn-prev-q').disabled = idx === 0;
+      const mobPrevBtn = document.getElementById('mob-btn-prev');
+      if (mobPrevBtn) mobPrevBtn.disabled = idx === 0;
     }
 
     function selectOption(optIdx) {
-      const idx = session.currentIndex;
-      if (session.mode === 'practice' && session.answers[idx] !== undefined) {
-        return;
-      }
-      session.answers[idx] = optIdx;
-      renderActiveQuestion();
-      renderQuestionPalette();
-    }
-
-    function clearCurrentResponse() {
-      const idx = session.currentIndex;
-      delete session.answers[idx];
-      delete session.reviewStatus[idx];
-      renderActiveQuestion();
-      renderQuestionPalette();
-    }
-
-    function markForReviewAndNext() {
-      const idx = session.currentIndex;
-      session.reviewStatus[idx] = true;
-      if (idx < session.questions.length - 1) {
-        session.currentIndex++;
-      }
-      renderActiveQuestion();
-      renderQuestionPalette();
-    }
-
-    function saveAndNext() {
-      const idx = session.currentIndex;
-      if (idx < session.questions.length - 1) {
-        session.currentIndex++;
-        renderActiveQuestion();
-        renderQuestionPalette();
-      } else {
-        showToast('You have reached the last question. Click Submit to view your Scorecard!', 'info');
-        renderQuestionPalette();
-      }
-    }
-
-    function navigateQuestion(delta) {
-      const nextIdx = session.currentIndex + delta;
-      if (nextIdx >= 0 && nextIdx < session.questions.length) {
-        session.currentIndex = nextIdx;
-        renderActiveQuestion();
-        renderQuestionPalette();
-      }
-    }
-
-    function jumpToQuestion(idx) {
-      session.currentIndex = idx;
-      renderActiveQuestion();
-      renderQuestionPalette();
-    }
-
+// ... existing code ... -->
     function renderQuestionPalette() {
       const grid = document.getElementById('question-palette-grid');
-      grid.innerHTML = '';
+      const mobGrid = document.getElementById('mob-question-palette-grid');
+      if (grid) grid.innerHTML = '';
+      if (mobGrid) mobGrid.innerHTML = '';
 
       let answeredCount = 0;
       let unansweredVisitedCount = 0;
@@ -2189,749 +1256,62 @@
           btnClass += ' ring-2 ring-offset-2 ring-slate-900 scale-105';
         }
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = idx + 1;
-        btn.className = `h-9 rounded-xl font-bold text-xs flex items-center justify-center transition ${btnClass}`;
-        btn.onclick = () => jumpToQuestion(idx);
-        grid.appendChild(btn);
+        if (grid) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = idx + 1;
+          btn.className = `h-9 rounded-xl font-bold text-xs flex items-center justify-center transition ${btnClass}`;
+          btn.onclick = () => jumpToQuestion(idx);
+          grid.appendChild(btn);
+        }
+
+        if (mobGrid) {
+          const mBtn = document.createElement('button');
+          mBtn.type = 'button';
+          mBtn.textContent = idx + 1;
+          mBtn.className = `h-11 rounded-xl font-bold text-sm flex items-center justify-center transition ${btnClass}`;
+          mBtn.onclick = () => {
+            jumpToQuestion(idx);
+            toggleMobilePaletteDrawer(false);
+          };
+          mobGrid.appendChild(mBtn);
+        }
       });
 
+      const totalAnswered = Object.keys(session.answers).length;
       document.getElementById('legend-answered-count').textContent = answeredCount;
       document.getElementById('legend-unanswered-count').textContent = unansweredVisitedCount;
       document.getElementById('legend-review-count').textContent = reviewCount;
       document.getElementById('legend-notvisited-count').textContent = notVisitedCount;
-      document.getElementById('palette-progress-text').textContent = `${Object.keys(session.answers).length} / ${session.questions.length} Answered`;
+      document.getElementById('palette-progress-text').textContent = `${totalAnswered} / ${session.questions.length} Answered`;
+
+      const mobBadge = document.getElementById('mobile-palette-badge');
+      if (mobBadge) mobBadge.textContent = `${totalAnswered}/${session.questions.length}`;
+      const mobDrawerProg = document.getElementById('mob-drawer-progress-text');
+      if (mobDrawerProg) mobDrawerProg.textContent = `${totalAnswered} / ${session.questions.length} Answered`;
+      const mobLegAns = document.getElementById('mob-legend-answered');
+      if (mobLegAns) mobLegAns.textContent = answeredCount;
+      const mobLegUnans = document.getElementById('mob-legend-unanswered');
+      if (mobLegUnans) mobLegUnans.textContent = unansweredVisitedCount;
+      const mobLegRev = document.getElementById('mob-legend-review');
+      if (mobLegRev) mobLegRev.textContent = reviewCount;
+      const mobLegNot = document.getElementById('mob-legend-notvisited');
+      if (mobLegNot) mobLegNot.textContent = notVisitedCount;
     }
 
     function handleFinishSessionClick() {
-      const total = session.questions.length;
-      const attempted = Object.keys(session.answers).length;
-      const unattempted = total - attempted;
-
-      openConfirmModal({
-        title: session.mode === 'mock' ? 'Submit TPSC Mock Test?' : 'Finish Practice Session?',
-        message: `You have answered ${attempted} out of ${total} questions (${unattempted} unattempted). Are you ready to view your scorecard and detailed solutions?`,
-        confirmText: 'Submit & View Scorecard',
-        isDanger: false,
-        onConfirm: () => {
-          finalizeAndShowScorecard();
-        }
-      });
-    }
-
-    /**
-     * Calculate Score & Save Mock Test Result Permanently to Firestore
-     */
-    async function finalizeAndShowScorecard() {
-      if (session.timerInterval) {
-        clearInterval(session.timerInterval);
-        session.timerInterval = null;
-      }
-      session.active = false;
-
-      let correct = 0;
-      let wrong = 0;
-      let unattempted = 0;
-      const catStats = {};
-
-      session.questions.forEach((q, idx) => {
-        if (!catStats[q.category]) {
-          catStats[q.category] = { total: 0, correct: 0, wrong: 0, unattempted: 0 };
-        }
-        catStats[q.category].total++;
-
-        const userAns = session.answers[idx];
-        if (userAns === undefined) {
-          unattempted++;
-          catStats[q.category].unattempted++;
-        } else if (userAns === q.correctIndex) {
-          correct++;
-          catStats[q.category].correct++;
-        } else {
-          wrong++;
-          catStats[q.category].wrong++;
-        }
-      });
-
-      const penaltyRate = session.negativeMarking ? 0.25 : 0;
-      const positiveMarks = correct * 1.0;
-      const negativeMarks = wrong * penaltyRate;
-      const netScore = positiveMarks - negativeMarks;
-      const attempted = correct + wrong;
-      const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
-
-      const elapsedSeconds = session.mode === 'mock'
-        ? Math.max(1, session.initialSeconds - session.timerSeconds)
-        : 0;
-      const mins = Math.floor(elapsedSeconds / 60);
-      const secs = elapsedSeconds % 60;
-      const timeFormatted = session.mode === 'mock'
-        ? `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-        : 'Untimed';
-
-      const labelParts = [];
-      if (session.batchName !== 'ALL') labelParts.push(session.batchName);
-      if (session.category !== 'ALL') labelParts.push(session.category);
-      const categoryLabel = labelParts.length > 0 ? labelParts.join(' • ') : 'Full TPSC Mixed Mock';
-
-      const histId = 'mock-' + Date.now();
-      const resultObj = {
-        id: histId,
-        timestamp: Date.now(),
-        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-        categoryLabel,
-        totalQuestions: session.questions.length,
-        correct,
-        wrong,
-        unattempted,
-        positiveMarks,
-        negativeMarks,
-        netScore,
-        accuracy,
-        timeFormatted
-      };
-
-      session.completedResult = resultObj;
-
-      if (session.mode === 'mock') {
-        if (currentUser && db) {
-          try {
-            const histRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'mock_history', histId);
-            await setDoc(histRef, resultObj);
-          } catch (err) {
-            console.error('Error saving mock result to cloud:', err);
-          }
-        } else {
-          testHistory.push(resultObj);
-        }
-      }
-
+// ... existing code ... -->
       document.getElementById('arena-active-container').classList.add('hidden');
       document.getElementById('arena-scorecard-container').classList.remove('hidden');
+      toggleMobilePaletteDrawer(false);
+      syncMobileBottomBars();
 
       document.getElementById('scorecard-title').textContent = session.mode === 'mock'
-        ? 'TPSC Prelims Mock Test Scorecard'
-        : 'Practice Session Summary & Solutions';
-      document.getElementById('scorecard-subtitle').textContent = `${categoryLabel} • Evaluated on ${resultObj.date} (${session.negativeMarking ? '+1.00 / -0.25 Scheme' : '+1.00 / No Negative'})`;
-
-      document.getElementById('sc-net-score').textContent = netScore.toFixed(2);
-      document.getElementById('sc-max-score').textContent = `out of ${session.questions.length}.00`;
-      document.getElementById('sc-accuracy').textContent = `${accuracy}%`;
-      document.getElementById('sc-correct').textContent = correct;
-      document.getElementById('sc-positive-marks').textContent = `+${positiveMarks.toFixed(2)} marks`;
-      document.getElementById('sc-wrong').textContent = wrong;
-      document.getElementById('sc-negative-marks').textContent = `-${negativeMarks.toFixed(2)} marks`;
-      document.getElementById('sc-unattempted').textContent = unattempted;
-      document.getElementById('sc-time-taken').textContent = timeFormatted;
-
-      const catContainer = document.getElementById('sc-category-breakdown');
-      catContainer.innerHTML = '';
-      Object.entries(catStats).forEach(([catName, st]) => {
-        const catNet = (st.correct * 1 - st.wrong * penaltyRate).toFixed(2);
-        const div = document.createElement('div');
-        div.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2';
-        div.innerHTML = `
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-slate-800 truncate">${escapeHTML(catName)}</p>
-            <p class="text-[11px] text-slate-500 mt-0.5">
-              <span class="text-emerald-600 font-semibold">${st.correct}C</span> • 
-              <span class="text-rose-600 font-semibold">${st.wrong}W</span> • 
-              <span>${st.unattempted}U</span>
-            </p>
-          </div>
-          <span class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-extrabold text-slate-900 shrink-0">
-            ${catNet} / ${st.total}
-          </span>
-        `;
-        catContainer.appendChild(div);
-      });
-
-      filterScorecardReview('ALL');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function filterScorecardReview(filterType) {
-      ['ALL', 'CORRECT', 'WRONG', 'UNATTEMPTED'].forEach(type => {
-        const btn = document.getElementById(`rev-filter-${type}`);
-        if (type === filterType) {
-          btn.className = 'rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white';
-        } else {
-          btn.className = 'rev-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-      });
-
-      const list = document.getElementById('sc-solutions-list');
-      list.innerHTML = '';
-      const letters = ['A', 'B', 'C', 'D'];
-      let shownCount = 0;
-      const wrongBadgeText = session.negativeMarking ? 'Wrong (-0.25)' : 'Wrong (0.00)';
-
-      session.questions.forEach((q, idx) => {
-        const userAns = session.answers[idx];
-        const status = userAns === undefined
-          ? 'UNATTEMPTED'
-          : (userAns === q.correctIndex ? 'CORRECT' : 'WRONG');
-
-        if (filterType !== 'ALL' && status !== filterType) return;
-        shownCount++;
-
-        const statusBadge = {
-          CORRECT: '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>Correct (+1.00)</span>',
-          WRONG: `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800"><i class="fa-solid fa-xmark mr-1"></i>${wrongBadgeText}</span>`,
-          UNATTEMPTED: '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700">Unattempted (0.00)</span>'
-        }[status];
-
-        const optionsHTML = q.options.map((opt, oIdx) => {
-          let rowCls = 'border-slate-200 bg-white text-slate-700';
-          let tag = '';
-          if (oIdx === q.correctIndex) {
-            rowCls = 'border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold';
-            tag = '<span class="ml-auto text-xs font-bold text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i>Correct Answer</span>';
-          } else if (oIdx === userAns && status === 'WRONG') {
-            rowCls = 'border-rose-500 bg-rose-50 text-rose-950 font-semibold';
-            tag = '<span class="ml-auto text-xs font-bold text-rose-700"><i class="fa-solid fa-circle-xmark mr-1"></i>Your Answer</span>';
-          }
-          return `
-            <div class="px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm flex items-center gap-2.5 ${rowCls}">
-              <span class="font-bold">${letters[oIdx]}.</span>
-              <span>${escapeHTML(opt)}</span>
-              ${tag}
-            </div>
-          `;
-        }).join('');
-
-        const card = document.createElement('div');
-        card.className = 'p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3.5';
-        card.innerHTML = `
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-extrabold text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">Q.${idx + 1}</span>
-              <span class="text-xs font-semibold text-emerald-700">${escapeHTML(q.category)}</span>
-            </div>
-            ${statusBadge}
-          </div>
-          <p class="text-sm sm:text-base font-bold text-slate-900 leading-relaxed">${escapeHTML(q.question)}</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            ${optionsHTML}
-          </div>
-          <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 text-xs sm:text-sm text-slate-700 leading-relaxed">
-            <strong class="text-blue-900"><i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i>Explanation:</strong>
-            ${escapeHTML(q.explanation)}
-          </div>
-        `;
-        list.appendChild(card);
-      });
-
-      if (shownCount === 0) {
-        list.innerHTML = `<p class="text-center py-8 text-sm text-slate-500">No questions match the selected filter.</p>`;
-      }
-    }
-
-    function retakeSameSession() {
-      startSession(session.mode);
-    }
-
-    /**
-     * ===================================================================
-     * ADMIN / PERSISTENT QUESTION UPLOAD & BANK MANAGEMENT PORTAL
-     * ===================================================================
-     */
-    function switchAdminSubtab(subtab) {
-      ['single', 'bulk', 'manage'].forEach(t => {
-        const panel = document.getElementById(`admin-panel-${t}`);
-        const btn = document.getElementById(`subtab-btn-${t}`);
-        if (t === subtab) {
-          panel.classList.remove('hidden');
-          btn.className = 'admin-subtab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 text-white shadow-xs transition';
-        } else {
-          panel.classList.add('hidden');
-          btn.className = 'admin-subtab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
-        }
-      });
-
-      if (subtab === 'manage') {
-        renderQuestionBankList();
-      }
-    }
-
-    function updateAdminCounts() {
-      const countEl = document.getElementById('admin-tab-count');
-      if (countEl) countEl.textContent = questionBank.length;
-    }
-
-    /**
-     * Single MCQ Form Submission -> Saved Permanently to Firestore
-     */
-    async function handleSingleQuestionSubmit(e) {
-      e.preventDefault();
-      const category = document.getElementById('inp-category').value;
-      const batchInput = document.getElementById('inp-batch-name').value.trim();
-      const batchName = batchInput || 'Custom Single MCQs';
-      const correctIndex = parseInt(document.getElementById('inp-correct').value, 10);
-      const question = document.getElementById('inp-question').value.trim();
-      const optA = document.getElementById('inp-opt-a').value.trim();
-      const optB = document.getElementById('inp-opt-b').value.trim();
-      const optC = document.getElementById('inp-opt-c').value.trim();
-      const optD = document.getElementById('inp-opt-d').value.trim();
-      const explanation = document.getElementById('inp-explanation').value.trim();
-
-      if (!question || !optA || !optB || !optC || !optD) {
-        showToast('Please fill in the question and all 4 options.', 'error');
-        return;
-      }
-
-      const newId = 'q-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
-      const newQ = {
-        id: newId,
-        category: normalizeCategoryName(category),
-        batchName,
-        question,
-        options: [optA, optB, optC, optD],
-        correctIndex,
-        explanation: explanation || 'No explanation provided.',
-        createdAt: Date.now()
-      };
-
-      if (currentUser && db) {
-        try {
-          updateCloudSyncUI('syncing', 'Saving MCQ...');
-          const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', newId);
-          await setDoc(docRef, newQ);
-          e.target.reset();
-          showToast('Saved permanently to your Cloud Question Bank!', 'success');
-        } catch (err) {
-          console.error('Save single MCQ error:', err);
-          showToast('Failed to save question to cloud.', 'error');
-        }
-      } else {
-        questionBank.unshift(newQ);
-        onBankOrHistoryUpdated();
-        e.target.reset();
-        showToast('Added to local session bank!', 'success');
-      }
-    }
-
-    /**
-     * Bulk JSON / CSV Templates, Parsing & Importing
-     */
-    function loadSampleTemplate(format) {
-      const textarea = document.getElementById('bulk-raw-input');
-      const batchInp = document.getElementById('bulk-batch-name');
-      if (batchInp && !batchInp.value.trim()) {
-        batchInp.value = format === 'csv' ? 'Tripura GK Sample CSV Set' : 'Tripura History JSON Set';
-      }
-
-      if (format === 'json') {
-        const sampleJSON = [
-          {
-            category: 'Tripura GK',
-            question: 'Who wrote the royal chronicle of the Manikya dynasty of Tripura known as "Rajmala"?',
-            options: ['Sukreshwar and Baneshwar', 'Kailash Chandra Singha', 'Rabindranath Tagore', 'Brajendra Kishore'],
-            correctIndex: 0,
-            explanation: 'Rajmala was composed in Bengali verse during the reign of Dharma Manikya I in the 15th century by royal priests Sukreshwar and Baneshwar.'
-          },
-          {
-            category: 'Tripura GK',
-            question: 'Which wildlife sanctuary in Tripura is famous for the Spectacled Monkey (Phayre’s leaf monkey)?',
-            options: ['Sepahijala Wildlife Sanctuary', 'Gumti Wildlife Sanctuary', 'Trishna Wildlife Sanctuary', 'Rowa Wildlife Sanctuary'],
-            correctIndex: 0,
-            explanation: 'Sepahijala Wildlife Sanctuary in Bishalgarh is renowned for its Clouded Leopard National Park and Phayre’s leaf monkey (Spectacled Monkey).'
-          }
-        ];
-        textarea.value = JSON.stringify(sampleJSON, null, 2);
-      } else {
-        const sampleCSV = `category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation
-Tripura GK,"Which river flows through the capital city of Agartala?","Haora River","Manu River","Khowai River","Feni River",A,"The Haora River originates in the Baramura Hills and flows westward through Agartala before entering Bangladesh."
-Current Affairs,"In which district of Tripura is the Maitri Setu integrated check post located?","South Tripura","West Tripura","Dhalai","North Tripura",A,"Sabroom in South Tripura district hosts the Maitri Setu over the Feni River connecting India with Bangladesh."`;
-        textarea.value = sampleCSV;
-      }
-      parseAndPreviewBulk();
-    }
-
-    function downloadTemplateFile(format) {
-      const csvContent = `category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation
-Tripura GK,"Who was the last ruling Maharaja of Tripura before its merger with India?","Maharaja Bir Bikram Kishore Manikya","Maharaja Kirit Bikram Kishore Manikya","Maharaja Radha Kishore Manikya","Maharaja Birendra Kishore Manikya",B,"Maharaja Kirit Bikram Kishore Manikya was the minor titular king under the regency of Maharani Kanchan Prava Devi when Tripura merged with India in 1949."`;
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'TPSC_MCQ_Upload_Template.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function handleBulkFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const batchInp = document.getElementById('bulk-batch-name');
-      if (batchInp && !batchInp.value.trim()) {
-        batchInp.value = file.name.replace(/\.[^/.]+$/, '');
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        document.getElementById('bulk-raw-input').value = e.target.result;
-        parseAndPreviewBulk();
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function clearBulkArea() {
-      document.getElementById('bulk-raw-input').value = '';
-      document.getElementById('bulk-batch-name').value = '';
-      document.getElementById('bulk-preview-card').classList.add('hidden');
-      bulkPreviewBuffer = [];
-    }
-
-    function parseAndPreviewBulk() {
-      const raw = document.getElementById('bulk-raw-input').value.trim();
-      if (!raw) {
-        showToast('Please paste JSON/CSV data or upload a file first.', 'warning');
-        return;
-      }
-
-      const defaultCat = document.getElementById('bulk-default-category').value;
-      const rawBatchName = document.getElementById('bulk-batch-name').value.trim();
-      const batchName = rawBatchName || `Uploaded Set (${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })})`;
-
-      let parsedItems = [];
-
-      if (raw.startsWith('[') || raw.startsWith('{')) {
-        try {
-          let json = JSON.parse(raw);
-          if (!Array.isArray(json)) json = [json];
-          parsedItems = json.map((item) => normalizeImportedItem(item, defaultCat, batchName)).filter(Boolean);
-        } catch (err) {
-          showToast('Invalid JSON format: ' + err.message, 'error');
-          return;
-        }
-      } else {
-        parsedItems = parseCSVToQuestions(raw, defaultCat, batchName);
-      }
-
-      if (parsedItems.length === 0) {
-        showToast('No valid MCQs could be parsed. Check column format or JSON keys.', 'error');
-        return;
-      }
-
-      bulkPreviewBuffer = parsedItems;
-      const previewCard = document.getElementById('bulk-preview-card');
-      const previewList = document.getElementById('bulk-preview-list');
-      document.getElementById('bulk-preview-count').textContent = parsedItems.length;
-
-      previewList.innerHTML = '';
-      const letters = ['A', 'B', 'C', 'D'];
-
-      parsedItems.forEach((q, idx) => {
-        const div = document.createElement('div');
-        div.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs space-y-1.5';
-        div.innerHTML = `
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="font-bold text-emerald-700">${idx + 1}. [${escapeHTML(q.category)}] • <span class="text-slate-600">${escapeHTML(q.batchName)}</span></span>
-            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Ans: ${letters[q.correctIndex]}</span>
-          </div>
-          <p class="font-semibold text-slate-900 text-sm">${escapeHTML(q.question)}</p>
-          <p class="text-slate-600">A) ${escapeHTML(q.options[0])} | B) ${escapeHTML(q.options[1])} | C) ${escapeHTML(q.options[2])} | D) ${escapeHTML(q.options[3])}</p>
-        `;
-        previewList.appendChild(div);
-      });
-
-      previewCard.classList.remove('hidden');
-      showToast(`Parsed ${parsedItems.length} valid MCQs! Click "Confirm & Import All" to save permanently.`, 'info');
-    }
-
-    function normalizeImportedItem(item, defaultCat, batchName) {
-      if (!item || !item.question) return null;
-      let options = item.options;
-      if (!Array.isArray(options)) {
-        options = [item.optionA, item.optionB, item.optionC, item.optionD];
-      }
-      if (!options || options.length < 4 || options.some(o => !o)) return null;
-
-      let cIdx = 0;
-      const rawAns = item.correctIndex !== undefined ? item.correctIndex : item.correctAnswer;
-      if (typeof rawAns === 'number' && rawAns >= 0 && rawAns <= 3) {
-        cIdx = rawAns;
-      } else if (typeof rawAns === 'string') {
-        const upper = rawAns.trim().toUpperCase();
-        if (upper === 'A' || upper === '0') cIdx = 0;
-        else if (upper === 'B' || upper === '1') cIdx = 1;
-        else if (upper === 'C' || upper === '2') cIdx = 2;
-        else if (upper === 'D' || upper === '3') cIdx = 3;
-      }
-
-      return {
-        id: 'q-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8),
-        category: normalizeCategoryName(item.category || defaultCat),
-        batchName: (item.batchName || batchName).trim(),
-        question: String(item.question).trim(),
-        options: options.slice(0, 4).map(o => String(o).trim()),
-        correctIndex: cIdx,
-        explanation: String(item.explanation || 'Explanation not provided.').trim(),
-        createdAt: Date.now()
-      };
-    }
-
-    function parseCSVLine(line) {
-      const result = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      result.push(current.trim());
-      return result;
-    }
-
-    function parseCSVToQuestions(csvText, defaultCat, batchName) {
-      const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
-      if (lines.length === 0) return [];
-
-      const items = [];
-      lines.forEach((line, idx) => {
-        const cols = parseCSVLine(line);
-        if (idx === 0 && cols[0].toLowerCase() === 'category' && cols[1].toLowerCase() === 'question') {
-          return;
-        }
-        if (cols.length >= 7) {
-          const normalized = normalizeImportedItem({
-            category: cols[0] || defaultCat,
-            question: cols[1],
-            optionA: cols[2],
-            optionB: cols[3],
-            optionC: cols[4],
-            optionD: cols[5],
-            correctAnswer: cols[6],
-            explanation: cols[7] || ''
-          }, defaultCat, batchName);
-          if (normalized) items.push(normalized);
-        }
-      });
-      return items;
-    }
-
-    /**
-     * Save Bulk Parsed CSV/JSON Questions Permanently to Firestore
-     */
-    async function commitBulkImport() {
-      if (bulkPreviewBuffer.length === 0) return;
-      const itemsToSave = [...bulkPreviewBuffer];
-
-      if (currentUser && db) {
-        try {
-          updateCloudSyncUI('syncing', `Saving ${itemsToSave.length} Questions...`);
-          // Commit in chunks of 450 to stay within Firestore 500-operation batch limit
-          for (let i = 0; i < itemsToSave.length; i += 450) {
-            const chunk = itemsToSave.slice(i, i + 450);
-            const batch = writeBatch(db);
-            chunk.forEach((item, offset) => {
-              const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', item.id);
-              batch.set(docRef, { ...item, createdAt: Date.now() - (i + offset) });
-            });
-            await batch.commit();
-          }
-          clearBulkArea();
-          showToast(`Permanently saved ${itemsToSave.length} questions to your Cloud Bank! No need to re-upload again.`, 'success');
-        } catch (err) {
-          console.error('Bulk import Firestore error:', err);
-          showToast('Error saving questions to cloud database.', 'error');
-        }
-      } else {
-        questionBank = [...itemsToSave, ...questionBank];
-        onBankOrHistoryUpdated();
-        clearBulkArea();
-        showToast(`Imported ${itemsToSave.length} questions!`, 'success');
-      }
-    }
-
-    /**
-     * Question Bank Manager List, Delete & Export
-     */
-    function renderQuestionBankList() {
-      const listEl = document.getElementById('bank-questions-list');
-      if (!listEl) return;
-      const queryText = (document.getElementById('bank-search-input').value || '').toLowerCase();
-      const catFilter = document.getElementById('bank-filter-category').value;
-      const batchFilter = document.getElementById('bank-filter-batch').value;
-
-      const filtered = questionBank.filter(q => {
-        const matchesCat = catFilter === 'ALL' || q.category === catFilter;
-        const matchesBatch = batchFilter === 'ALL' || (q.batchName || 'General Saved Questions') === batchFilter;
-        const matchesText = !queryText ||
-          q.question.toLowerCase().includes(queryText) ||
-          q.category.toLowerCase().includes(queryText) ||
-          (q.batchName || '').toLowerCase().includes(queryText) ||
-          q.options.some(o => o.toLowerCase().includes(queryText));
-        return matchesCat && matchesBatch && matchesText;
-      });
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = `<div class="text-center py-10 text-sm text-slate-500 border border-dashed border-slate-200 rounded-xl">No matching questions found in your saved bank.</div>`;
-        return;
-      }
-
-      const letters = ['A', 'B', 'C', 'D'];
-      listEl.innerHTML = '';
-
-      filtered.forEach((q, idx) => {
-        const card = document.createElement('div');
-        card.className = 'p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50/60 flex flex-col sm:flex-row sm:items-start justify-between gap-4';
-        card.innerHTML = `
-          <div class="space-y-1.5 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-bold text-slate-500">#${idx + 1}</span>
-              <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">${escapeHTML(q.category)}</span>
-              <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold"><i class="fa-solid fa-folder mr-1"></i>${escapeHTML(q.batchName || 'General')}</span>
-              <span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-800 text-[11px] font-bold">Correct: ${letters[q.correctIndex]}</span>
-            </div>
-            <p class="text-sm font-bold text-slate-900">${escapeHTML(q.question)}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-slate-600 pt-1">
-              ${q.options.map((o, i) => `<span class="${i === q.correctIndex ? 'text-emerald-700 font-bold' : ''}">${letters[i]}. ${escapeHTML(o)}</span>`).join('')}
-            </div>
-            <p class="text-xs text-slate-500 pt-1"><strong class="text-slate-700">Note:</strong> ${escapeHTML(q.explanation)}</p>
-          </div>
-          <button onclick="deleteQuestionById('${escapeAttr(q.id)}')" title="Delete Question" class="self-end sm:self-start px-3 py-1.5 rounded-lg bg-white border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white text-xs font-bold transition shrink-0">
-            <i class="fa-solid fa-trash-can mr-1"></i> Delete
-          </button>
-        `;
-        listEl.appendChild(card);
-      });
-    }
-
-    function deleteQuestionById(id) {
-      openConfirmModal({
-        title: 'Delete Saved Question?',
-        message: 'Are you sure you want to permanently remove this MCQ from your cloud database?',
-        confirmText: 'Delete',
-        isDanger: true,
-        onConfirm: async () => {
-          if (currentUser && db) {
-            try {
-              const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'questions', id);
-              await deleteDoc(docRef);
-              showToast('Question deleted from cloud bank.', 'info');
-            } catch (err) {
-              showToast('Failed to delete question.', 'error');
-            }
-          } else {
-            questionBank = questionBank.filter(q => q.id !== id);
-            onBankOrHistoryUpdated();
-          }
-        }
-      });
-    }
-
-    function exportQuestionBank(format) {
-      if (questionBank.length === 0) {
-        showToast('Question Bank is empty.', 'warning');
-        return;
-      }
-      let content = '';
-      let mime = '';
-      let filename = '';
-
-      if (format === 'json') {
-        content = JSON.stringify(questionBank, null, 2);
-        mime = 'application/json';
-        filename = 'TPSC_Cloud_Question_Bank.json';
-      } else {
-        const letters = ['A', 'B', 'C', 'D'];
-        const rows = ['category,question,optionA,optionB,optionC,optionD,correctAnswer,explanation'];
-        questionBank.forEach(q => {
-          const esc = (str) => `"${String(str).replace(/"/g, '""')}"`;
-          rows.push([
-            esc(q.category),
-            esc(q.question),
-            esc(q.options[0]),
-            esc(q.options[1]),
-            esc(q.options[2]),
-            esc(q.options[3]),
-            letters[q.correctIndex],
-            esc(q.explanation)
-          ].join(','));
-        });
-        content = rows.join('\n');
-        mime = 'text/csv;charset=utf-8;';
-        filename = 'TPSC_Cloud_Question_Bank.csv';
-      }
-
-      const blob = new Blob([content], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast(`Exported ${questionBank.length} questions as ${format.toUpperCase()}!`, 'success');
-    }
-
-    /**
-     * HTML & Attribute Sanitization Helpers
-     */
-    function escapeHTML(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function escapeAttr(str) {
-      return String(str)
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '&quot;');
-    }
-
-    /**
-     * Expose Handlers to Global Window Scope for Inline HTML Event Attributes
-     */
-    window.switchTab = switchTab;
-    window.openAccountModal = openAccountModal;
-    window.closeAccountModal = closeAccountModal;
-    window.handleEmailLinkOrRegister = handleEmailLinkOrRegister;
-    window.handleEmailSignIn = handleEmailSignIn;
-    window.handleSignOutToGuest = handleSignOutToGuest;
-    window.updateLobbyAvailableCount = updateLobbyAvailableCount;
-    window.startSession = startSession;
-    window.quickLaunchDefault = quickLaunchDefault;
-    window.confirmClearHistory = confirmClearHistory;
-    window.navigateQuestion = navigateQuestion;
-    window.clearCurrentResponse = clearCurrentResponse;
-    window.markForReviewAndNext = markForReviewAndNext;
-    window.saveAndNext = saveAndNext;
-    window.handleFinishSessionClick = handleFinishSessionClick;
-    window.retakeSameSession = retakeSameSession;
-    window.filterScorecardReview = filterScorecardReview;
-    window.switchAdminSubtab = switchAdminSubtab;
-    window.handleSingleQuestionSubmit = handleSingleQuestionSubmit;
-    window.loadSampleTemplate = loadSampleTemplate;
-    window.downloadTemplateFile = downloadTemplateFile;
-    window.handleBulkFileUpload = handleBulkFileUpload;
-    window.clearBulkArea = clearBulkArea;
-    window.parseAndPreviewBulk = parseAndPreviewBulk;
-    window.commitBulkImport = commitBulkImport;
-    window.renderQuestionBankList = renderQuestionBankList;
-    window.deleteQuestionById = deleteQuestionById;
-    window.exportQuestionBank = exportQuestionBank;
+// ... existing code ... -->
     window.seedStarterPackToCloud = seedStarterPackToCloud;
     window.practiceSpecificBatch = practiceSpecificBatch;
     window.confirmDeleteBatch = confirmDeleteBatch;
+    window.toggleMobilePaletteDrawer = toggleMobilePaletteDrawer;
 
     // Boot Application
     initCloudStorage();
